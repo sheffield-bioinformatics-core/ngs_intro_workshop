@@ -14,7 +14,7 @@ editor_options:
 
 
 
-# Hands-on Somatic Variant Analysis in Galaxy and IGV
+# Hands-on Variant Analysis in Galaxy and IGV
 
 ### Sheffield Bioinformatics Core
 <img src="media/logo-sm.png" align=right>

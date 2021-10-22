@@ -1,6 +1,6 @@
 ---
 title: "Introduction to NGS data"
-author: "Mark Dunning"
+author: "Mark Dunning - Sheffield Bioinformatics Core"
 output:
   html_notebook:
     toc: yes
@@ -379,30 +379,9 @@ The output of this tool will tell you how many reads aligned to each chromosome 
 
 
 
-### About Duplicates
+#### 4. Download your bam file
 
-The preparation of a sequencing library requires *PCR* amplification of your starting material. This can lead to some DNA fragments being over-represented in your data. As our DNA fragments are formed in a random process, and relatively small compared to the number of bases to be sequenced from the genome (3Gb in humans), we tend to think the two DNA fragments that have identical starting and ending position are unlikely to have occurred due to chance. Some software, such as [Picard](http://broadinstitute.github.io/picard/) will identify such artefacts and *mark* them for attention by downstream methods. i.e. they are not completely discarded from the analysis.
-
-![](media/pcr_dups.png)
-
-#### 4. Mark Duplicates with Picard
-
-1. Use the tool *GENOMICS TOOLKITS -> Picard -> MarkDuplicates*
-2. In *Select SAM/BAM dataset or dataset collection* choose the bam file produced by bowtie2.
-3. What do you notice about the *flag* values for any reads that have the same *start* as another read? 
-4. Interpret the meaning of these flags using the online tool
-  + https://broadinstitute.github.io/picard/explain-flags.html
-
-**Warning** the assumption about reads having the same start location being PCR duplicates falls down when we do sequencing for a very specific region of the genome. e.g. targeted sequencing from a panel of cancer genes. Running a tool to mark PCR duplicates on such data would recommend a high proportion of reads be ignored from further analysis.
-  
-#### 5. (Optional) Re-run the alignment statistics
-
-1. Select the tool *GENOMIC FILE MANIPULATION -> SAM/BAM -> Samtools flagstat* 
-2. In the *BAM File to Convert* box choose the bam file produced by the *mark duplicates* step
-
-#### 6. Download your bam file
-
-For the next step you will need to download the `bam` file that you produced after *marking duplicates*. To do this, you can click the floppy disk icon.
+For the next step you will need to download the `bam` file that you produced. To do this, you can click the floppy disk icon.
 
 ![](media/download_bam.png)
 
