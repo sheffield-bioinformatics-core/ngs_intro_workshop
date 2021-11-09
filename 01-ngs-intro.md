@@ -270,7 +270,7 @@ In practice, we don't have to convert the values as we have software that will d
 
 [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is a popular tool from [Babraham Institute Bioinformatics Group](https://www.bioinformatics.babraham.ac.uk/index.html) used for *quality assessment* of sequencing data. Most Bioinformatics pipelines will use FastQC, or similar tools in the first stage of the analysis. The [documentation](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/) for FastQC will help you to interpret the plots and stats produced by the tool. A traffic light system is used to alert the user's attention to possible issues. 
 
-- From the left hand tool panel in Galaxy, under *GENOMIC FILE MANIPULATION*, select *FASTA/FASTQ -> FastQC* (Or using the Search tools box)
+- From the left hand tool panel in Galaxy, *FASTA/FASTQ -> FastQC* (Or using the Search tools box)
 - Select one of the FASTQ files as input and *Execute* the tool.
 - When the tool finishes running, you should have an HTML file in your History. Click on the eye icon to view the various quality metrics.
 
