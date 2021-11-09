@@ -203,8 +203,13 @@ In the previous section, you will have produced a *vcf* file. The `.vcf` format 
 
 We don’t require any specialised software to look at the contents of a vcf file. They can be opened in a bog-standard text editor, however your laptop may try and interpret the file as containing contact information (virtual contact file).
 
-In a similar vein to the `.bam` and `.sam` files we saw earlier, the `.vcf` files contains many lines of header information. These describe the reference sequences and various filters that have been applied.
+In a similar vein to the `.bam` and `.sam` files we saw earlier, the `.vcf` files contains many lines of header information. These describe the reference sequences and information on how the variant calls and genotypes are represented.
 
+It may ease the interpretation of these new files by running the following tool to convert them into a tab-delimited file
+
+<div class="information">
+Variant Calling -> **VCFtoTab-delimited** Convert VCF data to TAB delimited format
+</div>
 
 ```
 ##fileformat=VCFv4.2
@@ -212,9 +217,19 @@ In a similar vein to the `.bam` and `.sam` files we saw earlier, the `.vcf` file
 ##source=freeBayes v1.3.1-dirty
 ##reference=/data/db/reference_genomes/hg19/seq/hg19.fa
 ##contig=<ID=chr10,length=135534747>
-
 ......
 ......
+##commandline="freebayes --region chr22:1..51304566 --bam b_0.bam --fasta-reference /data/db/reference_genomes/hg19/seq/hg19.fa --vcf ./vcf_output/part_chr22:1..51304566.vcf"
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth at the locus">
+##INFO=<ID=DPB,Number=1,Type=Float,Description="Total read depth per bp at the locus; bases in reads overlapping / bases in haplotype">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Total number of alternate alleles in called genotypes">
+......
+......
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality, the Phred-scaled marginal (or unconditional) probability of the called genotype">
+##FORMAT=<ID=GL,Number=G,Type=Float,Description="Genotype Likelihood, log10-scaled likelihoods of the data given the called genotype for each possible genotype generated from the reference and alternate alleles given the sample ploidy">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
 
 ```
 
@@ -230,57 +245,70 @@ chr22	16124819	.	T	C	42.5105	.	AB=0;ABP=0;AC=0;AF=0;AN=2;AO=4;CIGAR=1X;DP=21;DPB
 chr22	16125108	.	A	T	10.7921	.	AB=0;ABP=0;AC=0;AF=0;AN=2;AO=2;CIGAR=1X;DP=7;DPB=7;DPRA=0;EPP=7.35324;EPPR=6.91895;GTI=0;LEN=1;MEANALT=1;MQM=1;MQMR=1;NS=1;NUMALT=1;ODDS=2.39796;PAIRED=0;PAIREDR=0.4;PAO=0;PQA=0;PQR=0;PRO=0;QA=74;QR=181;RO=5;RPL=2;RPP=7.35324;RPPR=6.91895;RPR=0;RUN=1;SAF=0;SAP=7.35324;SAR=2;SRF=0;SRP=13.8677;SRR=5;TYPE=snp;technology.ILLUMINA=1	GT:DP:AD:RO:QR:AO:QA:GL	0/0:7:5,2:5:181:2:74:0,-1.91725,-0.269908
 ```
 
-The first seven columns should look consistent across different genotype callers. The contents of the `INFO` and `FORMAT` columns will depend on what variant caller has been used. The `INFO` column contains metrics and other information related to each variant call as a set of `KEY=VALUE` pairs. Each pair is separated by a `;` character.
+The first seven columns should look consistent across different genotype callers and are the easiest to interpret. These columns tell you where `FreeBayes` has identified a possible variant, and which base(s) are present in the reference genome and the sample.
+
+The contents of the `INFO` and `FORMAT` columns will depend on what variant caller has been used. The `INFO` column contains metrics and other information related to each variant call as a set of `KEY=VALUE` pairs. Each pair is separated by a `;` character.
 
 The INFO for the a variant call may read as:-
 
 ```
-DP=27;SS=1;SSC=0;GPV=5.1363e-16;SPV=1
+AB=0;ABP=0;AC=2;AF=1;AN=2;AO=3;CIGAR=1X;DP=3
 ```
 
 or 
 
 ```
       Key   Value
-DP=27 DP    27
-SS=1  SS    1
-SSC=0 SSC   0
-GPV=5.1.. GPV   5.1363e-16
-SPV=1 SPV   1
+AB=0  AB  0
+ABP=0 ABP 0
+AC=2  AC  2
+```
+etc...
+
+The meaning of each key can be discovered by looking at the header for the file. e.g. `##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">`. So this variant has a total of 3 bases covering it. 
+
+
+The column in the file describes the genotype calls for sample. In the sample column (`RS024V-FATHER`) for the first variant we see the entry
 
 ```
-
-The meaning of each key can be discovered by looking at the header for the file. e.g. `##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">`. So this variant has a total of 27 bases covering it. 
-
-
-The final two columns in the file describes the calls for the NORMAL and TUMOUR samples respectively. In the sample column (`NORMAL`) for the first variant we see the entry
-
-```
-1/1:.:16:0,16:0,2:0,14
+1/1:3:0,3:0:0:3:107:-0.746352,-0.90309,0
 ```
 
-These are values separated by a `:` character and they are interpreted in the same order as dictated by the FORMAT column; which is `GT:GQ:DP:AD:ADF:ADR`
+These are values separated by a `:` character and they are interpreted in the same order as dictated by the FORMAT column; which is `GT:DP:AD:RO:QR:AO:QA:GL`
+
 
 ```
-##FORMAT=<ID=GT,Number=1,Type=String,Description=Genotype>
-##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype quality">
-##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">
-##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Read depth for each allele">
-##FORMAT=<ID=ADF,Number=R,Type=Integer,Description="Read depth for each allele on the forward strand">
-##FORMAT=<ID=ADR,Number=R,Type=Integer,Description="Read depth for each allele on the reverse strand">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality, the Phred-scaled marginal (or unconditional) probability of the called genotype">
+##FORMAT=<ID=GL,Number=G,Type=Float,Description="Genotype Likelihood, log10-scaled likelihoods of the data given the called genotype for each possible genotype generated from the reference and alternate alleles given the sample ploidy">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Number of observation for each allele">
+##FORMAT=<ID=RO,Number=1,Type=Integer,Description="Reference allele observation count">
+##FORMAT=<ID=QR,Number=1,Type=Integer,Description="Sum of quality of the reference observations">
+##FORMAT=<ID=AO,Number=A,Type=Integer,Description="Alternate allele observation count">
+##FORMAT=<ID=QA,Number=A,Type=Integer,Description="Sum of quality of the alternate observations">
 ```
 
-So for this particular variant there is a genotype of `1\1` (Homozygous for the alternate allele) in the normal sample and a depth of `16` etc. The same genotype information is repeated for the tumour. From this we can infer whether the variant is likely to be somatic or not and gain insight into whether it is a true variant or a false positive (which we will discuss in detail later).
+So for this particular variant there is a genotype of `1\1` (Homozygous for the alternate allele) in the sample and a depth of `3` etc. 
 
-## vcfToTab
+## Refined variant-calling
 
-## Get exons regions for Chromosome 22
+For the current analysis we have one vcf output for each sample. An alternative analysis exists which will give a merged vcf as an output
 
-## Call variants with Freebayes - Part 2
-
-## Alternative: Overlap calls with Bed regions
+- **Choose the source for the reference genome** Locally cached
+- Select Merge output VCFs in **Run in batch mode**
+- Under **Bam dataset** select the three bam files with **duplicates marked**
+- **Using reference genome** Human (Homo sapiens): hg19
+- **Limit variant calling to a set of regions?** Limit to region
+  - **Region Chromosome**: chr22
+  - **Region Start**: 1
+  - **Region End**: 51304566
+- **Read coverage**: Use defaults
+- **Choose parameter selection level** 1. Simple diploid calling
 
 ## vcfFilter
+
+## Intersect with exon regions
 
 
 # Annotation
