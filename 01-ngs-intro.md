@@ -403,7 +403,7 @@ An additional couple of steps have been performed after bwa-mem; sorting the fil
 
 <div class="information">
 Should you ever need to, you can sort a `bam` file by coordinate or name using the **Samtools sort** tool in Galaxy. The **Samtools view** tool can also be used to convert between `.sam` and `.bam` file types
-<div>
+</div>
 
 ### Quality Flags
 
