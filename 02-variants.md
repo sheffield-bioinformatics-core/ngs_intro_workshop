@@ -306,36 +306,114 @@ For the current analysis we have one vcf output for each sample. An alternative 
 - **Read coverage**: Use defaults
 - **Choose parameter selection level** 1. Simple diploid calling
 
-## SnpSift Filter
+## Quality Filtering
 
-- `DP > 10`
-- `QUAL > 100`
-- `type=snp`
+`FreeBayes` has produced a large set of potential variants, and there are far too many to follow-up. It reports all variants; even those with little evidence of being genuine. With the `VCFfilter` tool we can remove unreliable calls from our dataset. We can filter using the many entries that are found in the `INFO` field.
+
+<div class="information">
+Variant Calling -> **VCFfilter**filter VCF data in a variety of attributes
+</div>
+
+Co
+
+- **VCF dataset to filter** - your combined VCF file from the trio
+- **more filters**
+  + **Select the filter type** Info filter (-f)
+  + **Specify filtering value** `DP > 10`
+- *Insert more filters*
+  + **Select the filter type** Info filter (-f)
+  + **Specify filtering value** `QUAL > 50`
+  
+
+
+## Sample-Specific Variants
+
+We might also want to know which variants are specific to certain samples, or subsets of samples in our dataset. This is relevant to our dataset, as we might be looking for variants specific to the `patient`. The `SNPSift Filter` tool can be used to do this (and more besides).
+
+<div class="information">
+Variant Calling -> **SnpSift Filter** Filter variants using arbitrary expressions
+</div>
+
+Like the previous filtering tool, this requires us to write an expression to specify how we filter the data. However, the expressions we write can be more complicated. Check out some of the examples.
+
+In particular, we can use functions `isRef()`, `isVariant()` to test if the calls for a particular sample match the reference or alternative. The *syntax* is as follows, where `GEN[0]`, `GEN[1]` and `GEN[2]` represent the genotypes for the 1st, 2nd and 3rd samples respectively.
+
+- **Variant input file in VCF format** your filtered file from the previous step
+- **Filter criteria** `isRef(GEN[0]) & isVariant(GEN[1]) & isRef(GEN[2])`
+
 
 ## Intersect with exon regions
 
+<div class="information">
 
-# Annotation
+Get Data -> **UCSC Main** table browser
 
-## Annotating with SNPeff
+</div>
 
-As we have seen the standard vcf file contains genome coordinates for each variant, but gives no useful information about what gene (if any) the variant lies within or the potential impact of the variant. One such tool for adding genomic information is SNPeff which is described in the Galaxy tutorial.
+If our list of potential variants is too long, we might also want to restrict it according to genomic regions. As we have performed a exome-seq experiment, we probably won't be interested in variants in intergenic or intronic regions.
 
-- [See here](https://training.galaxyproject.org/training-material/topics/variant-analysis/tutorials/somatic-variants/tutorial.html#adding-annotations-to-the-called-variants); **"Adding functional genomic annotations" only**
+We can obtain these co-ordinates using the UCSC genome browser.
 
-SNPeff will produce a modified `vcf` file and a HTML report. 
+- Set *clade* to **Mammal**
+- Set *genome* to **Human**
+- *assembly* **Feb. 2009 (GRCm37/hg19)**
+- *group* **Genes and Gene Prediction**
+- *track* **UCSC Genes**
+- *table* **knownGene**
+- *position* **chr22**
+- *output format* **BED - browser extensible data** and *send output to* **Galaxy**
 
-<div class="alert alert-warning">
+Click *get output* and *send query to Galaxy* to be returned to Galaxy. A new job will be submitted to retrieve the coordinates from UCSC
 
-**Discussion:** Scroll through the contents of the vcf file produced by snpeff. What extra information has it added? Try and locate the variants within `BRCA1`. Also take some time to digest the contents of the HTML report and the information it provides
+<div class="warning">
+
+When you are returned to Galaxy from UCSC it might look like you have lost all the files in your analysis and are no longer logged in. 
+
+To solve this, log back in and choose the **View all histories** option under the History panel.
+
+![](media/galaxy_history.PNG)
+
+There should be two "histories"; one containing all the outputs you generated before accessing UCSC, and one containing the UCSC output. All this point you can switch back to your previous history, and drag the box containing the UCSC ouput to this history
+
+![](media/switch_histories.PNG)
+
+</div>
+
+We can now *intersect* our variant calls with the gene coordinates
+
+<div class="information">
+
+Variant Calling -> **VCF-BEDintersect** Intersect VCF and BED datasets
 
 </div>
 
 
+- **Select VCF dataset** your VCFFilter output
+- **BED dataset or an interval to intersect with** the BED output from UCSC
+
+This tool will help restrict our search to coding regions, but it won't tell us *which gene* a variant lies within, or what the impact of the variant is. For this, we will need to follow a process called annotation.
+
+<div class="information">
+
+An interesting option in this tool is **Invert Selection?** which will return all the variants **NOT** intersecting with the regions in your bed file.
+
+</div>
+
+<div class="information">
+
+The `FreeBayes` tool can also use a `BED` file as a set of regions to call variants in. We could have restricted our analysis to these regions from the start.
+
+</div>
+
+<div class="exercise">
+**Question**: Load the VCF files before, and after filtering into IGV. Can you see why particular variants have been removed by filtering?
+</div>
+
+# Annotation
 
 ## Annotation with Ensembl VEP
 
-A useful alternative to running SNPeff within Galaxy is the online VEP tool provided by Ensembl. This will annotate our variants with gene identifiers and also provide some predictions about the impact of the variant. 
+A useful annotation tool is the online VEP tool provided by Ensembl. This will annotate our variants with gene identifiers and also provide some predictions about the impact of the variant. 
 
 More documentation on Ensembl VEP is [available online](http://grch37.ensembl.org/info/docs/tools/vep/online/index.html)
 
@@ -345,9 +423,7 @@ The **hg19** version of VEP can be accessed [here](http://grch37.ensembl.org/Hom
 
 ![](media/vep-upload.png)
 
-<div class="alert alert-warning">
-Upload the `vcf` file that you annotated with SNPeff. If you were unable to complete this step, a copy is available in the google drive; `231335_231336_VarScan_Variants_SnpEff_SS2.vcf`.
-</div>
+
 
 You will have a choice about what transcript database to use. The output can also be configured by clicking the *+* symbol next to a particular section. e.g. *Variants and frequency data*. After selecting the options you want, scroll down to the bottom of the page and click **Run**. The screen should now change to let you know that VEP is running.
 
@@ -358,6 +434,24 @@ The screen will refresh by itself, and eventually a green *Done* box should appe
 ![](media/vep-finished.png)
 
 The results can be inspected online, or downloaded. Downloading as a text file is better for browsing in Excel, and can also be manipulated in languages such as R.
+
+<div class="exercise">
+**Exercise:** Use Ensembl VEP to annotate your filtered VCF file, and take some time to digest the results.
+</div>
+
+<div class="information">
+The link to VEP for the latest genome version is:-
+
+- [https://www.ensembl.org/Tools/VEP](https://www.ensembl.org/Tools/VEP)
+
+Note that in the Species box you can search and select which organism you are interested in. VEP is also available for plants, bacteria and funghi
+
+- [http://plants.ensembl.org/Tools/VEP](http://plants.ensembl.org/Tools/VEP)
+- [https://bacteria.ensembl.org/Tools/VEP](https://bacteria.ensembl.org/Tools/VEP)
+- [https://fungi.ensembl.org/Tools/VEP](https://fungi.ensembl.org/Tools/VEP)
+
+</div>
+
 
 # Variant Calling for Matched Normal Samples
 
