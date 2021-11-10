@@ -306,7 +306,11 @@ For the current analysis we have one vcf output for each sample. An alternative 
 - **Read coverage**: Use defaults
 - **Choose parameter selection level** 1. Simple diploid calling
 
-## vcfFilter
+## SnpSift Filter
+
+- `DP > 10`
+- `QUAL > 100`
+- `type=snp`
 
 ## Intersect with exon regions
 
