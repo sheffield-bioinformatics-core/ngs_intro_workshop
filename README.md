@@ -1,9 +1,15 @@
 # ngs_intro_workshop
 Introductory workshop on analysis of NGS data in Galaxy and other online tools
 
+- [Intro](01-ngs-intro.nb.html)
+- [Variants](02-variants.nb.html)
+- [RNA-Seq](03-rna-seq.nb.html)
+
 # Plan for delivery
 
 ## Session 1 - General  NGS
+
+
 
 Dataset TBC
 
