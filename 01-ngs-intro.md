@@ -97,6 +97,10 @@ The data for this tutorial are publicly-available human cell-lines *downsampled*
 
 ## Galaxy, and it's limitations?
 
+We are primarily using Galaxy as an educational tool to demonstrate the processes and workflows behind the analysis of NGS data. Due to it's interface, it does not require any prior experience of programming or Bioinformatics. However, it is still possible to perform the same analyses as an experienced Bioinformatician would using the command-line. 
+
+
+
 - Disk space
 - Queuing times
 - Tool availability
@@ -304,7 +308,53 @@ You should then be able to view the fastqc plots for both the fastq files on the
 The most common cause of errors are not selecting FastQC as the tool used to generate logs, and not selecting the RawData outputs.
 </div>
 
+<div class="exercise">
+**Exercise**: Use the `multiqc` tool to make a combined QC report for all files in the dataset. Does the quality appear to be consistent across the dataset?
+
+</div>
+
 # Section 4: Trimming
+
+<div class="information">
+FASTA/FASTQ -> **Trimmomatic** flexible read trimming tool for Illuimina NGS data
+</div>
+
+
+
+It is common to observe a decrease in quality scores towards the end of the sequencing reads. This is due to the process of cleaving terminators and colors labels not being 100%, and errors accummulate as the run progresses.
+
+We should be concerned about having too many low quality bases in our sequences. A low quality score means that we are less confident about the base that has been identified at a given position. Such errors might make our sequences more difficult to match to the reference genome (alignment; see the next section), or be mistaken for genuine differences from the reference genome.
+
+*One* popular tool is called `Trimmomatic`
+
+- [Trimmomatic: A flexible read trimming tool for Illumina NGS data](http://www.usadellab.org/cms/?page=trimmomatic)
+
+It has many trimming options, including a *sliding window* approach where the quality scores of N consecutive bases (4 is the default) are averaged. If that average falls below a pre-defined cut-off, the remainder of the read is discarded. We can apply this approach to our data as follows:-
+
+
+- Find the `Trimmomatic` tool in Galaxy
+- Change **Single-end or paired-end reads?** to `Paired-end (two separate input file`)
+- Use the multiple selection button to select `example1_R1`, `example2_R1` as the `R1/first of pair` files and `example1_R2`, `example2_R2` as the `R2/second of pair` files.
+- Keep **Select Trimmomatic operation to perform** on `Sliding window trimming (SLIDINGWINDOW)`
+- Keep **Number of bases to average across** as `4`
+- Keep **Average quality required** as `20`
+- Click on **+ Insert Trimmomatic Operation**
+- Select `Drop reads below a specified length (MINLEN)` from **Select Trimmomatic operation to perform**
+- Keep the **Minimum length of reads to be kept as `20`
+- Execute
+
+A total of 8 outputs are created and we are only interested in the outputs with *paired* in the name. The *unpaired* files contain reads that are discarded from the `R1` file but not `R2` (and vice-versa), so are not useful for downstead analysis where we assume we have sequenced in both directions.
+
+<div class="exercise">
+**Exercise**: Rename the *paired* trimmomatic output for the input files to
+
+- example1_R1_trimmed.fastq
+- example1_R2_trimmed.fastq
+- example2_R1_trimmed.fastq
+- example2_R1_trimmed.fastq
+
+**(Optional)** If you have time, re-run `FastQC` on these trimmed files. What differences do you see?
+</div>
 
 # Section 5: Alignment
 
@@ -316,6 +366,11 @@ In this section we map the reads in our FASTQ files to a reference genome. This 
 
 A plethora of different tools have been written to perform this task, and we will not describe it in detail. Alignment relies on the reference genome being *indexed* so that the sequencing reads can be located more efficiently. The genome index is a highly-accessible data structure, and Galaxy includes indices for many popular genomes. 
 
+<div class="information">
+
+If your genome of interest is not available in Galaxy, you can upload a `.fasta` file containing the reference sequences. From the **Will you select a reference genome from your history or use a built-in index** drop-down you can select `Use a genome from history and build index`
+</div>
+
 #### 1.Align the example files  
 
 ![](media/bwa-tool.png)
@@ -323,7 +378,7 @@ A plethora of different tools have been written to perform this task, and we wil
 - Find the tool *Mapping* -> *Map with BWA*
   + alternatively, type `bwa` in the search box
 - In *Select input type?* Select **Paired-fastq**
-- Use *example1_R1.fastq* and *example1_R2.fastq* as the first and second set of reads respectively.
+- Use `example1_R1_trimmed.fastq`, `example2_R1_trimmed.fastq` and `example1_R2_trimmed.fastq`, `example2_R2_trimmed.fastq` as the first and second set of reads respectively.
 - Make sure the reference genome is set to **Human Dec. 2013 (GRCh38/hg38) (hg38)**
 - Press *Execute*
 - Wait!
