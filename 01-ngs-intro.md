@@ -535,7 +535,7 @@ e.g.
 We will now generate a few basic statistics about the alignment of our data
 
 1. Select the tool *SAM/BAM:- > Samtools flagstat* 
-2. In the *BAM File to report statistics of* box choose the bam file produced by bwa-mem.
+2. In the *BAM File to report statistics of* box choose the bam file(s) produced by bwa-mem.
 
 
 The tool will also report how many ***PCR Duplicates*** have been found in the data. But as we haven't yet run any software to identify such reads, the flagstat output will show 0 reads.
@@ -555,10 +555,12 @@ The preparation of a sequencing library requires *PCR* amplification of your sta
 #### 4. Mark Duplicates with Picard
 
 1. Use the tool *Picard -> MarkDuplicates*
-2. In *Select SAM/BAM dataset or dataset collection* choose the bam file produced by bowtie2.
-3. What do you notice about the *flag* values for any reads that have the same *start* as another read? 
-4. Interpret the meaning of these flags using the online tool
-  + https://broadinstitute.github.io/picard/explain-flags.html
+2. In *Select SAM/BAM dataset or dataset collection* choose the bam file(s) produced by bwa-mem.
+
+<div class="exercise">
+**Exercise**: Use the `MarkDuplicates` tool to identify PCR duplicates in the bam file(s). View the bam files and scroll through the data. Can you find any reads that have been identified as duplicates? You can use their "flag" or aligned coordinates to find them.
+</div>
+
 
 **Warning** the assumption about reads having the same start location being PCR duplicates falls down when we do sequencing for a very specific region of the genome. e.g. targeted sequencing from a panel of cancer genes. Running a tool to mark PCR duplicates on such data would recommend a high proportion of reads be ignored from further analysis.
   
@@ -588,19 +590,7 @@ You can download IGV for Windows using this link
 
 - https://software.broadinstitute.org/software/igv/download
 
-*Extract* the zip file that you have downloaded
 
-
-
-![](media/extract_igv.PNG)
-
-
-
-Double-Click the file `igv` to launch IGV
-
-
-
-![](media/run_igv.PNG)
 
 <font size="5">
 If you are unable to download IGV, you should be able to run a web-app from the Broad Institute website with the same functionality.
@@ -632,7 +622,7 @@ e.g. `chr1:10,000-11,000`
 
 IGV should now be displaying a region on chromosome 1 from base position `10,000` to `11,000`. 
 
-![](media/zoom_region.PNG)
+![](media/zoom_region.png)
 
 
 At this resolution, we can start to see the *genome sequence*. Each DNA base is represented by a different colour (A = green, C = blue) and it seems that this region is highly-repetitive; comprising mostly `C` bases. We can zoom further in using the zoom control in the top right of IGV
@@ -643,7 +633,7 @@ We can use the zoom control, and also move along the genome by holding down by m
 
 ![](media/select_region.PNG)
 
-The text box should now update to show the coordinates of `BRCA1` (`chr17:....`). At the bottom of the screen we can now see the *gene model* for the gene `BRCA1`.  Genes are represented as lines and boxes. Lines represent intronic regions and boxes represent exonic regions. The arrows indicate the direction / strand of transcription for the gene.
+The text box should now update to show the coordinates of `ADGRE2` (`chr19:....`). At the bottom of the screen we can now see the *gene model* for the gene `ADGRE2`.  Genes are represented as lines and boxes. Lines represent intronic regions and boxes represent exonic regions. The arrows indicate the direction / strand of transcription for the gene.
 
 ![](media/gene_region.PNG)
 
@@ -651,10 +641,9 @@ The text box should now update to show the coordinates of `BRCA1` (`chr17:....`)
 
 Choose File > Load from File..., select the bam file that you downloaded from Galaxy, and click OK. Note that the bam and index files must be in the same directory for IGV to load these properly.
 
-![](media/select_bam.PNG)
 
-The main display of IGV should now update to hold tracks for the aligned reads from this bam file. It may seem like nothing is being displayed. This is because we are zoomed-out too far to be able to see the reads. **Use the zoom function and move along the genome until you get to the first exon of BRCA1**. After you have zoomed-in far enough you will start to see some grey rectangles. *These are the aligned reads*. Note that some *downsampling* may occur meaning that not all reads are displayed to reduce memory requirements.
+The main display of IGV should now update to hold tracks for the aligned reads from this bam file. It may seem like nothing is being displayed. This is because we are zoomed-out too far to be able to see the reads. **Use the zoom function and move along the genome until you start to see some (mostly) grey rectangles**. These are the aligned reads.
 
 If you hover over a particular read, how will see columns from the bam file being displayed such as the mapping quality and information about the paired reads.
 
-Coloured-letters within the read indicate bases that are different to the reference genome. The entire read may be coloured differently to grey, which can indicate different things depending on how the display has been configured. For example, it can highlight paired-reads with an *insert size* different to that expected ([see here](https://software.broadinstitute.org/software/igv/interpreting_insert_size)). The display of aligned reads can be configured through the menus, as described [here](http://software.broadinstitute.org/software/igv/Preferences#Alignments). 
+Coloured-letters within the read indicate bases that are different to the reference genome. The entire read may be coloured differently to grey, which can indicate different things depending on how the display has been configured. For example, it can highlight paired-reads with an *insert size* different to that expected ([see here](https://software.broadinstitute.org/software/igv/interpreting_insert_size)) or reads with low quality. The display of aligned reads can be configured through the menus, as described [here](http://software.broadinstitute.org/software/igv/Preferences#Alignments). 
