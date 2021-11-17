@@ -92,18 +92,18 @@ The vendor may not advise on the *sample-size*; how many samples you will be seq
 
 ## Where do the data in this tutorial come from?
 
-The data for this tutorial are publicly-available human cell-lines *downsampled* to a few genomic regions of interest. The steps of the workflow that we illustrate in this workshop will be applicable to various forms of sequencing analysis (e.g. exome-seq, whole-genome seq, RNA-seq). We will discuss the specific workflows in subsequent workshops, and where applicable, explain how they deviate from this generic workflow.
+The data for this tutorial are publicly-available human cell-lines *downsampled* to a few genomic regions of interest. The steps of the workflow that we illustrate in this workshop will be broadly applicable to various forms of sequencing analysis (e.g. exome-seq, whole-genome seq, RNA-seq). We will discuss the specific workflows in subsequent workshops, and explain how they deviate from this generic workflow.
 
 
 ## Galaxy, and it's limitations?
 
 We are primarily using Galaxy as an educational tool to demonstrate the processes and workflows behind the analysis of NGS data. Due to it's interface, it does not require any prior experience of programming or Bioinformatics. However, it is still possible to perform the same analyses as an experienced Bioinformatician would using the command-line. 
 
+It is worth bearing the following in-mind before planning to do your own Bioinformatics analysis using Galaxy
 
-
-- Disk space
-- Queuing times
-- Tool availability
+- Disk space; the free account entitles you to 250Gb. This might sound like a lot, but will quickly fill up unless you get into the habit of removing temporary files or data you no longer need.
+- Queuing times; we are using a special queue for the workshop, but after the workshop you will be competing with other Galaxy users for available slots
+- Server availability; the Galaxy servers may become unavailable for planned maintenance or due to other error
 
 # Section 1: Preparation 
 
@@ -272,11 +272,19 @@ In practice, we don't have to convert the values as we have software that will d
 
 # Section 3: Quality assessment with FastQC
 
+<div class="information">
+*FASTA/FASTQ -> FastQC* Read Quality Reports
+</div>
+
+
 [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is a popular tool from [Babraham Institute Bioinformatics Group](https://www.bioinformatics.babraham.ac.uk/index.html) used for *quality assessment* of sequencing data. Most Bioinformatics pipelines will use FastQC, or similar tools in the first stage of the analysis. The [documentation](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/) for FastQC will help you to interpret the plots and stats produced by the tool. A traffic light system is used to alert the user's attention to possible issues. 
+<img src="media/multiple_select.png"/>
+
 
 - From the left hand tool panel in Galaxy, *FASTA/FASTQ -> FastQC* (Or using the Search tools box)
-- Select one of the FASTQ files as input and *Execute* the tool.
-- When the tool finishes running, you should have an HTML file in your History. Click on the eye icon to view the various quality metrics.
+- Select all of the FASTQ files as input. Use the multiple datasets button to select more than one file. Hold the CTRL (Windows) or Command (Mac) key and then click on multiple files (See the above screenshot).
+- *Execute* the tool. You do not need to change any of the options
+- When the tool finishes running, you should have an HTML file in your History for each FASTQ file that you selected. Click on the "eye" icon to view the various quality metrics.
 
 The most important image is whether the base quality decreases significantly over the length of the read
 
@@ -294,7 +302,11 @@ All is not lost if we observe poor quality bases towards the end of the read. Th
 
 It is also worth bearing in mind that the tool is blind to the particular type of sequencing you are performing (i.e. whole-genome, ChIP-seq, RNA-seq) and the organism being sequenced, so some warnings might be expected due to the nature of your experiment. For instance, there are known sequencing composition biases that can occur at the beginning of RNA-seq reads. 
 
-## Aggregating QC reports with multiqc
+## Aggregating QC reports with `multiqc`
+
+<div class="information">
+*Quality Control -> MultiQC* Aggregate results from Bioinformatics analysis into a single report
+</div>
 
 For datasets with large numbers of fastq files, it may be useful to aggregate the individual reports into a single combined report. 
 
@@ -302,7 +314,7 @@ For datasets with large numbers of fastq files, it may be useful to aggregate th
 - Make sure *Which tool was used to generate logs* is set to `FastQC`
 - In *Results file*, select the **RawData** results files that you have just generated
 
-You should then be able to view the fastqc plots for both the fastq files on the same page.
+You should then be able to view the fastqc plots for all the fastq files on the same page.
 
 <div class="warning">
 The most common cause of errors are not selecting FastQC as the tool used to generate logs, and not selecting the RawData outputs.
@@ -358,6 +370,10 @@ A total of 8 outputs are created and we are only interested in the outputs with 
 
 # Section 5: Alignment
 
+<div class="information">
+*Mapping* -> *Map with BWA*
+</div>
+
 We don't really spend much time look at *fastq* files, as most of our time is spent with *aligned* reads. i.e. we have used some software to tell us whereabouts in the genome each read belongs to. This will *usually* be performed for you as part of a sequencing service, but it is good to get an appreciation of the steps involved.
 
 In this section we map the reads in our FASTQ files to a reference genome. This figure from the Galaxy Training Network illustrates the procedure for three reads that map at positions 100, 114 and 123 of a reference genome
@@ -396,7 +412,7 @@ The result will be a `.bam` file that we will describe in the next section. This
 
 Unlike most of Bioinformatics, a *single standard* file format has emerged for aligned reads. Moreover, this file format is consistent regardless of whether you have DNA-seq, RNA-seq, ChIP-seq... data. 
 
-The `bam` file is a compressed, binary, version of a `sam` file.
+The `bam` file is a compressed, binary, version of a `sam` file. Most aligners will produce a `sam` file as their initial output.
 
 ### The `.sam` / `.bam` file
 
@@ -430,8 +446,6 @@ Next is a *tab-delimited* section that describes the alignment of each sequence 
 ```
 D0ENMACXX111207:2:2103:9825:158567	99	chr1	169176747	60	101M	=	169176962	316	AATTGGGCATTCTTCAGAAGGATGAGCTCAACTAAAAAAGAAGAGTCAGAAAAATCTCTTAACTCACTTTTATATAAATTACTTAGTATTTTAGCAAAAAC	CCCFFFFFHAHHHJJIJJJJJJJJJJJJJJJJJJJJJJJJJJJIIBFHIIIJJIIIJJJJJJJJJIJJHHHHHFFFFFFFDEEEEEADEEEEEDDDDDDDD	XT:A:U NM:i:0 SM:i:37 AM:i:37 X0:i:1 X1:i:0 XM:i:0 XO:i:0 XG:i:0 MD:Z:101`
 ```
-
-![](media/sam-entry-explained.png)
 
 Column | Official Name | Brief
 ------ | -------------- | -----------
@@ -471,12 +485,6 @@ The *"flags"* in the sam file can represent useful QC information
 
 The combination of any of these properties is used to derive a numeric value
 
-
-For instance, a particular read has a flag of 163
-
-![](media/flag-highlight.png)
-
-
 ### Derivation
 
 There is a set of properties that a read can possess. If a particular property is observed, a corresponding power of 2 is added multiplied by 1. The final value is derived by summing all the powers of 2.
@@ -502,9 +510,6 @@ See also
 - https://broadinstitute.github.io/picard/explain-flags.html
 
 ### Have a CIGAR!
-
-
-![](media/cigar-highlight.png)
 
 The ***CIGAR*** (**C**ompact **I**diosyncratic **G**apped **Alignment** **R**eport) string is a way of encoding the match between a given sequence and the position it has been assigned in the genome. It is comprised by a series of letters and numbers to indicate how many consecutive bases have that mapping.
 
@@ -532,16 +537,21 @@ e.g.
 
 #### 3. Check the alignment stats
 
-We will now generate a few basic statistics about the alignment of our data
+<div class="information">
+*SAM/BAM:- > Samtools flagstat*
+*SAM/BAM -> Samtools idxstats*
+</div>
+
+We will now generate a few basic statistics about the alignment of our data; such as the total number of reads and how many were aligned. In the case of paired-end data, it will also tell you how many pairs were within the expected distance of each other and located on the same chromosome.
 
 1. Select the tool *SAM/BAM:- > Samtools flagstat* 
-2. In the *BAM File to report statistics of* box choose the bam file(s) produced by bwa-mem.
+2. In the *BAM File to report statistics of* box choose the bam file(s) produced by `bwa`.
 
 
 The tool will also report how many ***PCR Duplicates*** have been found in the data. But as we haven't yet run any software to identify such reads, the flagstat output will show 0 reads.
 
 1. Find the tool *SAM/BAM -> Samtools idxstats*
-2. In the *BAM file* dropdown select the bam file produced by bwa-mem
+2. In the *BAM file* dropdown select the bam file produced by `bwa`
 
 The output of this tool will tell you how many reads aligned to each chromosome in your reference genome.
 
@@ -570,9 +580,9 @@ The preparation of a sequencing library requires *PCR* amplification of your sta
 2. In the *BAM File to report statistics of* box choose the bam file produced by the *mark duplicates* step
 
 
-#### 4. Download your bam file
+#### 6. Download your bam file(s)
 
-For the next step you will need to download the `bam` file that you produced. To do this, you can click the floppy disk icon.
+For the next step you will need to download the `bam` files that you produced. To do this, you can click the floppy disk icon.
 
 ![](media/download_bam.png)
 
