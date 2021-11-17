@@ -65,14 +65,14 @@ Experimental Design encompasses questions such as
 - what experimental conditions?
 - what technical and biological factors are present?
 
-When performing a high-throughput experiment, our measurements will be subject to biological variation (which will may be interested in) and technical variation (which we probably won't be). Being able to control these factors and minimise biases is key to experimental design.
+When performing a high-throughput experiment, our measurements will be subject to biological variation (which we may be interested in) and technical variation (which we probably won't be). Being able to control these factors and minimise biases is key to experimental design.
 
 Confounding factors in our design may arise by accident, or might be caused by not considering all possible sources of variation:-
 
 <img src="media/confounding_factor.PNG"/>
 (image from Cancer Research UK Cambridge Institute course on Experimental Design)
 
-We can also introduce so-called "batch-effects" by our choices when samples are prepared for sequencing. Large experiments may necessitate multiple runs or batches, and we should try and minimize the possible impact of batches but including a good representation of each condition of interest in each batch.
+We can also introduce so-called "batch-effects" by our choice of when samples are prepared for sequencing. Large experiments may necessitate multiple runs or batches, and we should try and minimize the possible impact of batches but including a good representation of each condition of interest in each batch.
 
 <img src="media/blocking.PNG"/>
 (image from Cancer Research UK Cambridge Institute course on Experimental Design)
