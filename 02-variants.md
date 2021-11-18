@@ -31,6 +31,7 @@ We will use training materials provided by the Galaxy Project and sign-post to r
 - [Galaxy Training Portal](https://training.galaxyproject.org/training-material/)
 - [IGV Tutorial](https://github.com/griffithlab/rnaseq_tutorial/wiki/IGV-Tutorial)
 
+Our primary analysis of interest is to identify *Single Nucleotide Polymorphisms* (SNPs) that are germline or somatic. The same methods can also be used to identify small insertions and deletions - *indels*.
 
 <img src="media/germline_vs_somatic.PNG"/>
 
