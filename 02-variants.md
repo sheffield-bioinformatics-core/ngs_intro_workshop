@@ -118,7 +118,18 @@ This tools extracts the "flag" data contained in the `.bam` file and tabulates t
 
 ### Combined QC report with multiqc
 
-The multiQC tool that we have seen previously can be used to 
+<div class="information">
+
+Quality Control -> **MultiQC** aggregate results from bioinformatics analysis into a single report
+
+</div>
+
+The multiQC tool that we have seen previously can be used to combine outputs from a set of samples into a single report that is easier to digest. 
+
+Moreover, the tools can also be used to combine the results of mutliple reporting tools via the `Insert Results` button
+
+<img src="media/insert_results.PNG">
+
 
 <div class="exercise">
 
@@ -128,7 +139,6 @@ The multiQC tool that we have seen previously can be used to
 - What chromosome have the reads been aligned to?
 - Are the data single- or paired-end?
 - Has a tool been run to mark duplicates?
-
 </div>
 
 
@@ -153,7 +163,7 @@ We will now go through a series of steps to produce a set of variant-calls ready
 
 ## Mark Duplicates with Picard
 
-As we have seen, it does not appear the duplicates have been identified in the data. This is commonly-done using the `Picard` suite of tools.
+As we have seen, it does not appear the duplicates have been identified in the data. This is commonly-done using the `Picard` suite of tools. Recall that these are reads that have exactly the *same sequence* and map to the *same genomic location*, so we assume that they are arise from the same DNA fragment. Our variant calling approaches rely on having reliable estimates of how many times a particular genomic location has been sequenced, so it is important to mark locations containing duplicates.
 
 
 <div class="information">
@@ -165,10 +175,10 @@ Picard -> **MarkDuplicates** examine aligned records in BAM datasets to locate d
 - Select the `father.bam`, `mother.bam` and `patient.bam` files in the **Select SAM/BAM dataset or dataset collection**. Don't forget to can select multiple bam files using the multiple datasets button.
 - No other options need to be changed
 
-It is recommended that you rename the BAM outputs so that you can keep track of your analysis; for example `patient_duplicates.bam`, `father_duplicates.bam` and `mother_duplicates.bam`.
+It is recommended that you rename the BAM outputs so that you can keep track of your analysis; for example `patient_nodups.bam`, `father_nodups.bam` and `mother_nodups.bam`.
 
 
-## Call variants with `Freebayes`
+## Call variants in the Patient sample with `Freebayes`
 
 We will call variants in our trio of samples using the `FreeBayes` tool. As it's name implies, this is a method based on computing Bayesian probabilities. A more-detailed explanation is provided in [this Galaxy tutorial](https://training.galaxyproject.org/training-material/topics/variant-analysis/tutorials/dip/tutorial.html).
 
@@ -181,8 +191,8 @@ Variant Calling -> **FreeBayes** bayesian genetic variant detector
 </div>
 
 - **Choose the source for the reference genome** Locally cached
-- Select Run individually in **Run in batch mode**
-- Under **Bam dataset** select the three bam files with **duplicates marked**
+- Select Merge output VCFs in **Run in batch mode**
+- Under **Bam dataset** select the patient bam file with **duplicates marked**
 - **Using reference genome** Human (Homo sapiens): hg19
 - **Limit variant calling to a set of regions?** Limit to region
   - **Region Chromosome**: chr22
@@ -195,14 +205,14 @@ Variant Calling -> **FreeBayes** bayesian genetic variant detector
 If you didn't set the genome build for the bam files, the tool may refuse to run. Use the pencil icon next to the bam files to edit and specify hg19 as the genome build (see above for screenshot).
 </div>
 
-Again, it would be good to rename these outputs to something more memorable; e.g. `father.vcf`, `mother.vcf` and `patient.vcf`. We will now explore the files we have just created.
+Again, it would be good to rename these outputs to something more memorable; e.g. `patient.vcf`. We will now explore the file we have just created.
 
 ## About vcf format
 
 
 In the previous section, you will have produced a *vcf* file. The `.vcf` format was initially developed by the [1000 Genomes Project](http://www.1000genomes.org/wiki/Analysis/vcf4.0), and ownership has been subsequently transferred to [Global Alliance for Genomics and Health Data Working group file format team](http://ga4gh.org/#/fileformats-team). The format can be used to represent information about all kinds of genomic variation. In this session we will just consider SNVs.
 
-We don’t require any specialised software to look at the contents of a vcf file. They can be opened in a bog-standard text editor, however your laptop may try and interpret the file as containing contact information (virtual contact file).
+We don’t require any specialised software to look at the contents of a vcf file. They can be opened in a standard text editor, however your laptop may try and interpret the file as containing contact information (virtual contact file).
 
 In a similar vein to the `.bam` and `.sam` files we saw earlier, the `.vcf` files contains many lines of header information. These describe the reference sequences and information on how the variant calls and genotypes are represented.
 
@@ -292,6 +302,26 @@ These are values separated by a `:` character and they are interpreted in the sa
 
 So for this particular variant there is a genotype of `1\1` (Homozygous for the alternate allele) in the sample and a depth of `3` etc. 
 
+## View the Calls in IGV
+
+A more interactive way to understand the `.vcf` is to view it in IGV. The `.vcf` can be loaded in the same session as the corresponding `.bam` file.
+
+- [http://software.broadinstitute.org/software/igv/viewing_vcf_files](http://software.broadinstitute.org/software/igv/viewing_vcf_files)
+
+<div class="exercise">
+
+**Exercise**: View the following positions in IGV:- What genotype is called in the patient (Het or Homozygous for the alternate allele). Does a variant seem likely here?
+
+- `chr22:17178684`
+- `chr22:25275498`
+- `chr22:36123083`
+- `chr22:36123313`
+
+Feel free to browse the other variant calls if you have time
+
+</div>
+
+
 ## Refined variant-calling
 
 For the current analysis we have one vcf output for each sample. An alternative analysis exists which will give a merged vcf as an output
@@ -307,41 +337,31 @@ For the current analysis we have one vcf output for each sample. An alternative 
 - **Read coverage**: Use defaults
 - **Choose parameter selection level** 1. Simple diploid calling
 
+The tool will produce as single vcf as before, but this time it will include data on the genotypes of all three samples. The file will be larger as it comprises variants identified in any of the samples. We can use this to identify variants that might be unique to the Patient.
+
+<div class="exercise">
+**Exercise**: Rename the merged output to `trio_raw.vcf` and verify that it does indeed contain variants for the trio of samples.
+</div>
+
 ## Quality Filtering
 
 `FreeBayes` has produced a large set of potential variants, and there are far too many to follow-up. It reports all variants; even those with little evidence of being genuine. With the `VCFfilter` tool we can remove unreliable calls from our dataset. We can filter using the many entries that are found in the `INFO` field.
 
 <div class="information">
-Variant Calling -> **VCFfilter**filter VCF data in a variety of attributes
+Variant Calling -> **VCFfilter** filter VCF data in a variety of attributes
 </div>
 
-Co
+
 
 - **VCF dataset to filter** - your combined VCF file from the trio
 - **more filters**
   + **Select the filter type** Info filter (-f)
-  + **Specify filtering value** `DP > 10`
-- *Insert more filters*
+  + **Specify filtering value** `DP > 20`
+- **Insert more filters**
   + **Select the filter type** Info filter (-f)
   + **Specify filtering value** `QUAL > 50`
   
-
-
-## Sample-Specific Variants
-
-We might also want to know which variants are specific to certain samples, or subsets of samples in our dataset. This is relevant to our dataset, as we might be looking for variants specific to the `patient`. The `SNPSift Filter` tool can be used to do this (and more besides).
-
-<div class="information">
-Variant Calling -> **SnpSift Filter** Filter variants using arbitrary expressions
-</div>
-
-Like the previous filtering tool, this requires us to write an expression to specify how we filter the data. However, the expressions we write can be more complicated. Check out some of the examples.
-
-In particular, we can use functions `isRef()`, `isVariant()` to test if the calls for a particular sample match the reference or alternative. The *syntax* is as follows, where `GEN[0]`, `GEN[1]` and `GEN[2]` represent the genotypes for the 1st, 2nd and 3rd samples respectively.
-
-- **Variant input file in VCF format** your filtered file from the previous step
-- **Filter criteria** `isRef(GEN[0]) & isVariant(GEN[1]) & isRef(GEN[2])`
-
+The output from the filtering should reduce the number of variants drastically. There is an option to filter to variants within a specific region. This would be useful if we wanted to quickly extract variants in a particular gene. If we want to obtain variants within a set of regions we need a different approach.
 
 ## Intersect with exon regions
 
@@ -351,9 +371,7 @@ Get Data -> **UCSC Main** table browser
 
 </div>
 
-If our list of potential variants is too long, we might also want to restrict it according to genomic regions. As we have performed a exome-seq experiment, we probably won't be interested in variants in intergenic or intronic regions.
-
-We can obtain these co-ordinates using the UCSC genome browser.
+If our list of potential variants is too long, we might also want to restrict it according to genomic regions. As we have performed a exome-seq experiment, we probably won't be interested in variants in intergenic or intronic regions. A file containing regions that are being used in the sequencing will usually be provided by the sequencing vendor. However, we can practice how to obtain these co-ordinates using the UCSC genome browser.
 
 - Set *clade* to **Mammal**
 - Set *genome* to **Human**
@@ -362,7 +380,8 @@ We can obtain these co-ordinates using the UCSC genome browser.
 - *track* **UCSC Genes**
 - *table* **knownGene**
 - *position* **chr22**
-- *output format* **BED - browser extensible data** and *send output to* **Galaxy**
+- *output format* **BED - browser extensible data** and click *get output*
+- On the next screen (**Output knownGene as BED**) click the checkbox `Exons plus` 100 bases at each end before *send output to* **Galaxy**
 
 Click *get output* and *send query to Galaxy* to be returned to Galaxy. A new job will be submitted to retrieve the coordinates from UCSC
 
@@ -394,9 +413,11 @@ Variant Calling -> **VCF-BEDintersect** Intersect VCF and BED datasets
 
 This tool will help restrict our search to coding regions, but it won't tell us *which gene* a variant lies within, or what the impact of the variant is. For this, we will need to follow a process called annotation.
 
+
+
 <div class="information">
 
-An interesting option in this tool is **Invert Selection?** which will return all the variants **NOT** intersecting with the regions in your bed file.
+An interesting option in this tool is **Invert Selection?** which will return all the variants **NOT** intersecting with the regions in your bed file. 
 
 </div>
 
@@ -406,9 +427,33 @@ The `FreeBayes` tool can also use a `BED` file as a set of regions to call varia
 
 </div>
 
-<div class="exercise">
-**Question**: Load the VCF files before, and after filtering into IGV. Can you see why particular variants have been removed by filtering?
+
+## Sample-Specific Variants
+
+We might also want to know which variants are specific to certain samples, or subsets of samples in our dataset. This is relevant to our dataset, as we might be looking for variants specific to the `patient`. The `SNPSift Filter` tool can be used to do this (and more besides).
+
+<div class="information">
+Variant Calling -> **SnpSift Filter** Filter variants using arbitrary expressions
 </div>
+
+Like the previous filtering tool, this requires us to write an expression to specify how we filter the data. However, the expressions we write can be more complicated. Check out some of the examples.
+
+In particular, we can use functions `isRef()`, `isVariant()` to test if the calls for a particular sample match the reference or alternative. The expression `GEN[0]`, `GEN[1]` and `GEN[2]` are used to represent the genotypes for the 1st, 2nd and 3rd samples respectively.
+
+- **Variant input file in VCF format** your filtered file from the previous step
+- **Filter criteria** `isRef(GEN[0]) & isVariant(GEN[1]) & isRef(GEN[2])`
+
+<div class="information">
+There might not be any sample-specific variants in this particular downsampled dataset, so if you want to see the tool in action you want have to select the "raw" `trio.vcf` file instead
+</div>
+
+## (Optional) Case-Control studies
+
+<div class="information">
+Variant Calling -> **SnpSift CaseControl** Count samples are in case and control groups
+</div>
+
+Similar to the previous use-case, for some studies we are looking for variants common to a set of patients (cases) compared to controls. For this task, the `CaseControl` function of `SnpSift` can be used which will annotate each variant for how many cases and controls it is observed in, along with a p-value for association. These new entries in the `vcf` can then be used for filtering.
 
 # Annotation
 
@@ -456,4 +501,56 @@ Note that in the Species box you can search and select which organism you are in
 
 # Variant Calling for Matched Normal Samples
 
-[Click here](somatic_snv_assessment_exercise.html) to follow an exercise on inspecting and evaluating somatic calls
+In this section we will consider the case when we want to find variants that exist in a patient's tumour sample, but not their normal tissue. Such analyses require specialised methods
+
+
+## Uploading the data
+
+The data for this section can be found in the Session2 folder of the google drive:-
+
+- https://drive.google.com/drive/folders/1SqXZjkkR2JXXsKUPkdls0SoFTb6FVqTp?usp=sharing
+
+Download both the `tumour.bam` and `normal.bam` files and upload to Galaxy using the Upload File interface. You can also download the index (`bai`) files to be used in IGV. These do not need to be uploaded to Galaxy though.
+
+You will also need a modified version of the reference genome that includes just chromosomes 5, 12 and 17. To load this file into Galaxy you can choose the *Paste/Fetch data* option instead of *Choose local files*. Paste the following URL into the text box
+
+- `https://zenodo.org/record/2582555/files/hg19.chr5_12_17.fa.gz`
+
+<img src="media/fetch_data.PNG"/>
+
+
+## Use Varscan to call somatic variants
+
+<div class="information">
+Variant Calling -> **VarScan somatic** Call germline/somatic and LOH variants from tumor-normal sample pairs
+</div>
+
+- Select `Use a genome from my history` as choose the uploaded `hg19.chr5_12_17.fa.gz` 
+- Choose `normal.bam` and `tumour.bam` as the **aligned reads from normal sample** and **aligned reads from tumor sample** respectively
+
+<div class="information">
+Variant Calling -> **VCFfilter** filter VCF data in a variety of attributes
+</div>
+
+
+The number of potential variants is quite large, but we can filter using `VCFfilter`
+
+- **VCF dataset to filter** Your `.vcf` output from `varscan`
+- **Specify filtering value** `FILTER = PASS`
+
+<div class="exercise">
+**Exercise**: Based on the header of the varscan output, what filter would you need to restrict the data to just somatic mutations? Add this filter to VCFfilter.
+</div>
+
+## Run the STRELKA to identify somatic calls
+
+<div class="information">
+Variant Calling -> **Strelka Somatic** small variant caller for somatic variation in tumor/normal sample pairs
+</div>
+
+- **Select normal sample file** `normal.bam`
+- **Select tumor sample file** `tumor.bam`
+- **Choose the source for the reference genome** History (`hg19.chr5_12_17.fa.gz`)
+
+
+
