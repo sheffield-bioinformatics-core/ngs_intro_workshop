@@ -206,6 +206,12 @@ There are several options add the top of the History panel to create a new Histo
 
 # Section 2: Fastq file format
 
+The data we are looking at are from a *paired-end* sequencing run. This graphic from Illumina illustrates the process.
+
+<img src="media/paired_end_what_is.png"/>
+
+Paired-end sequencing is recommended for whole-genome and exome sequencing. It is often used for RNA-seq and ChiP-seq, although *single-end* could also be used for these applications.
+
 You can view the files you just uploaded by clicking the **eye icon** the history item. The first few lines should read as follows
 
 
@@ -226,6 +232,8 @@ AAAGACCTTGTCTCTAAAAAATAATAATAATAGTTAGGGATAATGCATTTAAATCTGTCTCACTGAAATAGTAAGAATGA
 +
 C@CFFFFFHHHHHJJJJJJJIIIIJJJJJJJJJJIIIJJJJJIJJJIIIJIJJJJIJIJJJJJIIGJJJIJFGGHIJJIFFHGGHFFFFFFEEDEEEDDDD
 ```
+
+
 
 
 The first line is the unique identifier for each sequenced read. It can be used to encode information such as the *sequencing machine*, *flow cell* and *lane* that the read was generated from, and the physical coordinates on the lane. *Notice that the ID for the first read in the `_R1` and `_R2` files is the same*. Sometimes these will have a `/1` or `/2` to indicate the "first" or "second" read.
@@ -295,12 +303,11 @@ Good quality data should look something like:-
 ![](media/fastqc-2b.png)
 
 
+Accurate base calls are important as they make the alignment of our sequences easier. Particular downstream analyses such as identifying mutations will also be hampered by poor-quality base calls.
 
-Look at the generated FastQC metrics for your uploaded fastq files. This data looks pretty good - high per-base quality scores (most above 30).
+All is not lost if we observe poor quality bases towards the end of the read. There are a number of *trimming* options that we can use for NGS data, as we will see shortly. 
 
-All is not lost if we observe poor quality bases towards the end of the read. There are a number of *trimming* options that we can use for NGS data and some of these are available through Galaxy. Check out the [Trimmming Reads](https://galaxyproject.org/tutorials/ngs/#trimming-reads) section of the Galaxy NGS tutorial if you are interested in how we can trim our reads.
-
-It is also worth bearing in mind that the tool is blind to the particular type of sequencing you are performing (i.e. whole-genome, ChIP-seq, RNA-seq) and the organism being sequenced, so some warnings might be expected due to the nature of your experiment. For instance, there are known sequencing composition biases that can occur at the beginning of RNA-seq reads. 
+It is also worth bearing in mind that the tool is blind to the particular type of sequencing you are performing (i.e. whole-genome, ChIP-seq, RNA-seq) and the organism being sequenced, so some warnings might be expected due to the nature of your experiment. For instance, there are known sequencing composition biases that can occur at the beginning of RNA-seq reads. So-called "warnings" or "errors" may be persistent for all the samples in your dataset, so it is worth comparing QC reports rather than looking at the QC of individual samples in isolation.
 
 ## Aggregating QC reports with `multiqc`
 
@@ -399,7 +406,7 @@ If your genome of interest is not available in Galaxy, you can upload a `.fasta`
 - Press *Execute*
 - Wait!
 
-The result will be a `.bam` file that we will describe in the next section. This file is not human-readable, as it is compressed. But we can convert to a readable format for illustration purposes.
+The result will be a `.bam` file that we will describe in the next section. This file is not usually human-readable, as it is compressed. However, Galaxy is able to display the contents.
 
 #### 2. View the alignments
 
@@ -550,6 +557,10 @@ We will now generate a few basic statistics about the alignment of our data; suc
 
 The tool will also report how many ***PCR Duplicates*** have been found in the data. But as we haven't yet run any software to identify such reads, the flagstat output will show 0 reads.
 
+<div class="information">
+*SAM/BAM -> Samtools idxstats*
+</div>
+
 1. Find the tool *SAM/BAM -> Samtools idxstats*
 2. In the *BAM file* dropdown select the bam file produced by `bwa`
 
@@ -571,9 +582,10 @@ The preparation of a sequencing library requires *PCR* amplification of your sta
 **Exercise**: Use the `MarkDuplicates` tool to identify PCR duplicates in the bam file(s). View the bam files and scroll through the data. Can you find any reads that have been identified as duplicates? You can use their "flag" or aligned coordinates to find them.
 </div>
 
-
+<div class="warning">
 **Warning** the assumption about reads having the same start location being PCR duplicates falls down when we do sequencing for a very specific region of the genome. e.g. targeted sequencing from a panel of cancer genes. Running a tool to mark PCR duplicates on such data would recommend a high proportion of reads be ignored from further analysis.
-  
+</div>
+
 #### 5. (Optional) Re-run the alignment statistics
 
 1. Select the tool *SAM/BAM -> Samtools flagstat* 
@@ -616,7 +628,7 @@ By default, IGV should load with Human genome version *hg19* already loaded. It 
 
 ![](media/select_genome.PNG)
 
-We can also load extra *tracks* into the browser that can help us understand our variant calls. We can load data from *dbSNP* which will tell us about common mutations that already been identified. These can be loaded via *File* -> *Load from Server..* and selecting `dbSNP 1.4.7` from the `Variation and Repeats` section
+We can also load extra *tracks* into the browser that can help us understand our variant calls. For example, we can load data from *dbSNP* which will tell us about common mutations that already been identified. These can be loaded via *File* -> *Load from Server..* and selecting `dbSNP 1.4.7` from the `Variation and Repeats` section
 
 ![](media/available_datasets.PNG)
 
