@@ -51,6 +51,10 @@ A short introduction to Next Generation Sequencing can be found in this youtube 
 
 - [Next Generation Sequencing (Illumina) An Introduction - Henrik's Lab](https://www.youtube.com/watch?v=CZeN-IgjYCo)
 
+The overall workflow used in the tutorial is summarised below:-
+
+<img src="media/overall_workflow.png"/>
+
 ## Experimental Design
 
 Before embarking on any high-throughput experiment, it is important to pay due attention to the *experimental design*. This famous quote from the statistician R.A Fisher in the 1938 is still applicable to modern technologies
@@ -669,3 +673,15 @@ The main display of IGV should now update to hold tracks for the aligned reads f
 If you hover over a particular read, how will see columns from the bam file being displayed such as the mapping quality and information about the paired reads.
 
 Coloured-letters within the read indicate bases that are different to the reference genome. The entire read may be coloured differently to grey, which can indicate different things depending on how the display has been configured. For example, it can highlight paired-reads with an *insert size* different to that expected ([see here](https://software.broadinstitute.org/software/igv/interpreting_insert_size)) or reads with low quality. The display of aligned reads can be configured through the menus, as described [here](http://software.broadinstitute.org/software/igv/Preferences#Alignments). 
+
+## Summary
+
+The process we have just followed is summarised in the workflow.
+
+<img src="media/overall_workflow.png"/>
+
+As part of this workshop series, there will now be sessions on variant-calling and RNA-seq.
+
+We will not cover ChIP-seq or methylation. If you are interested these topics you can check out the resources from the Galaxy Training Network
+
+- [Epigenetics Section of GTN](https://training.galaxyproject.org/training-material/topics/epigenetics/)
