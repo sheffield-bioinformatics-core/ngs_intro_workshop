@@ -60,9 +60,14 @@ Those eventually wanted to perform their own RNA-seq analysis (for example in R)
 
 ## RNA-seq workflow
 
-![](https://databeauty.com/figures/2016-09-13-RNA-seq-analysis/rna_seq_workflow.png)
+Two workflows are possible with RNA-seq data - with the difference being whether one performs an alignment to the reference genome or not.
 
-Workflow image from Ting-you Wang's [RNA-seq data analysis page](https://databeauty.com/blog/tutorial/2016/09/13/RNA-seq-analysis.html)
+Recent tools for RNA-seq analysis (e.g. `salmon`, `kallisto`) do not require the time-consuming step of whole-genome alignment to be performed, and can therefore produce gene-level counts in a much faster time frame. They not require the creation of large bam files, which is useful if constrained by file space on Galaxy.
+
+![](https://hbctraining.github.io/Intro-to-rnaseq-hpc-gt/img/alignmentfree_workflow_aug2017.png)
+
+(image from Harvard Bioinformatics Core)
+
 
 -----
 
@@ -75,9 +80,7 @@ The data for this tutorial comes from a Journal of Experimental Medicine paper [
 
 For this tutorial, we will assume that the *wet-lab* stages of the experiment have been performed and we are now in the right-hand branch of the workflow. In this tutorial we will demonstrate the steps of **Quality assessment**, **alignment**, **quantification** and **differential expression testing**.
 
-The *summarised* data for this experiment were made available on the Sequencing Read Archive with accession SRP144496. **For the purposes of this workshop we have created a downsampled dataset**
-
-If you want to know how to obtain these data, see the optional Appendix
+The fastq data for this experiment were made available on the Sequencing Read Archive with accession SRP144496. **For the purposes of this workshop we have created a downsampled dataset**
 
 ## Section 1: Preparation
 #### 1. Sign-up to the European Galaxy server
@@ -88,6 +91,10 @@ If you want to know how to obtain these data, see the optional Appendix
 
 
 **Make sure you check your email to activate your account**
+
+Now, use this link to access a special queue. This link will only be active on **December 6th**.
+
+- [https://usegalaxy.eu/join-training/sbcgalaxy-2021-12-01](https://usegalaxy.eu/join-training/sbcgalaxy-2021-12-01)
 
 #### 2. Download the course data
 
@@ -101,6 +108,7 @@ https://drive.google.com/open?id=1ftuBP5L-rcXwsEub2mIaSDJ1tceHYFc7
 
 We can going to import the [*fastq* files](https://en.wikipedia.org/wiki/FASTQ_format) for this experiment. This is a standard format for storing raw sequencing reads and their associated quality scores. To make the practical quicker, we have *downsampled* the original fastq files to a quarter of a million reads.
 
+The experimental design for the dataset is summarised in the table below.
 
 run	| name	| cell_line	| condition
 ----|-------|-----------|--------- 
@@ -131,7 +139,7 @@ You can import the data by:
 
 1.  In the tool panel located on the left, under Basic Tools select **Get Data > Upload File**. Click on the **Choose local file** button on the
     bottom section of the pop-up window.
-2.  Navigate to the `fastq` directory of the zip file that you downloaded from google drive and select these two filesfrom the HT55-DMSO condition. 
+2.  Navigate to the `fastq` directory of the zip file that you downloaded from google drive and select these two files from the HT55-DMSO condition. 
 
 `SRR7108388.fastq.gz`
 `SRR7108389.fastq.gz`
@@ -141,6 +149,7 @@ You can import the data by:
 `SRR7108392.fastq.gz`
 `SRR7108393.fastq.gz`
 
+also upload the file `Homo_sapiens.GRCh38.cdna.all.fa.gz`, which is a reference file that we will use later.
 
 3.  You should now have these 4 files in your history:
     - `SRR7108388.fastq.gz`
@@ -152,6 +161,9 @@ You can import the data by:
 The `.gz` at the end of each file name means that it is *compressed* (like a zip file). 
 </div>
 
+<div class="information">
+You can upload the other files for extra practice if you wish
+</div>
 
 ### Quality assessment with FastQC (Optional)
 
@@ -162,8 +174,6 @@ The `.gz` at the end of each file name means that it is *compressed* (like a zip
 #### *FastQ Quality Control* -> *FastQC Read Quality reports*
 
 </div>
-
-**Make sure you select this tool. There is another version of FastQC present, which does not produce some of the output we need for a later step**
 
 - Select one of the FASTQ files as input and *Execute* the tool.
 - When the tool finishes running, you should have an HTML file in your History. Click on the eye icon to view the various quality metrics.
@@ -182,20 +192,6 @@ If poor quality reads towards the ends of reads are considered to be a problem, 
 
 However, a recent paper demonstrated that read trimming is no longer required prior to alignment:- https://www.biorxiv.org/content/10.1101/833962v1
 
-<div class="warning">
-
-If you suspect contamination from adapter sequence or unacceptable quality scores towards the ends of reads various trimming options are supported by the *Trimmomatic* tool (amongst others)
-
-#### *FASTA/FASTQ* -> *Trimmomatic*
-
-The operations supported by trimmomatic will probably not be very informative on our example data (as it has already been processed), but you can try several operations if you get time:-
-
-- Removing Illumina adapter sequences by setting *Perform initial ILLUMINACLIP* to *Yes* and selecting the appropriate adapter type
-- Remove poor quality bases at the end of reads by choosing *Cut bases off the end of a read, if below a threshold quality (TRAILING)* under *Select Trimmomatic operation to perform*
-- Remove poor quality bases at the start of reads by choosing *Cut bases off the start of a read, if below a threshold quality (LEADING)* under *Select Trimmomatic operation to perform*
-- You can apply multiple operations in turn by clicking *Insert Trimmomatic Operation*
-
-</div>
 
 <div class="warning">
 
@@ -233,8 +229,17 @@ We can align our RNA-seq reads to a reference *genome*, and then overlap with kn
 
 1) cDNA fasta file
 
-This can be obtained from [Ensembl](http://m.ensembl.org/info/data/ftp/index.html)
+This file has been provided in the google drive folder
 
+- [https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing](https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing)
+
+However, it is useful to know where this file came from in case you are not working with Human data. The file was obtained from [Ensembl](http://m.ensembl.org/info/data/ftp/index.html) by clicking on the **cDNA (FASTA)** link for the appropriate organism (Human). 
+
+<img src="media/ensembl_download.png"/>
+
+On the next screen,  Right-click to save the `.cdna.all.fa.gz` to your computer
+
+<img src="media/cdna_download.png"/>
 
 2) Transcript mapping file
 
@@ -259,6 +264,8 @@ By default, salmon will produce counts for each *transcript*. This might be what
 
 It is important to make sure the version number of your transcript file and the biomaRt dataset are **the same**, otherwise some of the steps downstream might not work as expected.
 </div>
+
+If you have problems, this mapping file is also provided in the google drive as `tx2gene.txt`.
 
 3) Annotation file (optional)
 
@@ -315,12 +322,95 @@ After the tool has finished you should have a table with
 - 2nd file: result from *annotateMyIDs on data...*
 - Column to use from 2nd file: Column 1
 
-## Differential Expression using Degust
+## **(Optional)** Alternative workflow involving genome alignment
 
-Differential expression is possible using Galaxy using the DESeq2 tool (for example). However, our particular recommendation is to use Degust for a more interactive experience. For this section, we will be using counts generated on the full dataset, rather than the downsampled data analysed in the previous section. These counts are available in the file `GSE114013_salmon_counts.csv`.
+If time allows, we will also follow this section
+
+![](https://databeauty.com/figures/2016-09-13-RNA-seq-analysis/rna_seq_workflow.png)
+
+The workflow that people used for many years is summarised in this image from Ting-you Wang's [RNA-seq data analysis page](https://databeauty.com/blog/tutorial/2016/09/13/RNA-seq-analysis.html), and may still be preferable if your analysis doesn't just call for gene-level counts. 
+<div class="information">
+
+Mapping -> HISAT2
+
+</div>
+
+#### 1.  Map/align the reads with HISAT2 to the hg38 reference genome
+In the left tool panel menu, under NGS Analysis, select
+**Mapping > HISAT2** and set the parameters as follows:  
+
+- **Is this single-end or paired-end data?** Single-end (as individual datasets)  
+- **FASTQ file**  
+(Click on the multiple datasets icon and select all four of the
+FASTQ files)
+    - `SRR7108388.fastq.gz`
+    - `SRR7108389.fastq.gz`
+    - `SRR7108392.fastq.gz`
+    - `SRR7108393.fastq.gz`
+
+- **Source for the reference genome** Use
+built-in genome
+- **Select a reference genome:** Human Dec 2013. (GRCh38/hg38) (hg38)
+- Use defaults for the other fields
+- Execute
 
 
 
+### Quantification (Counting reads in features)
+
+In order to test for differential expression, we need to count up how many times each "feature" is observed in each sample. The goal of such operations is to produce a *count table* such as that shown below. We can then apply statistical tests to these data
+
+![](media/counts.png)
+
+HTSeq-count creates a count matrix using the number of the reads from each bam
+file that map to the genomic features. For each feature (a
+gene for example) a count matrix shows how many reads were mapped to this
+feature.
+
+Various rules can be used to assign counts to features
+
+![](media/htseq.png)
+
+To obtain the coordinates of each gene, we can use the UCSC genome browser which is integrated into Galaxy.
+
+### Obtaining gene coordinates
+
+[Ensembl](http://m.ensembl.org/info/data/ftp/index.html) 
+
+### Counting reads in genes
+
+<div class="information">
+**RNA Analysis > htseq-count**
+</div>
+
+1.  Use HTSeq-count to count the number of reads for each feature.  
+    In the left tool panel menu, under NGS Analysis, select
+    **NGS Analysis > htseq-count** and set the parameters as follows:  
+    - **Aligned SAM/BAM file**  
+      (Select one of four bam files, or all four using the multiple datasets option)
+    - **GFF file** UCSC Main on Mouse:ncbiRefSeq (genome)
+    - Use defaults for the other fields
+    - Execute
+2.  Repeat for the remaining bam files if running on each bam separately.
+3.  To make things easier to track, rename the ht-seq output for each sample to contain the corresponding sample name (e.g. SRR1552444.htseq). **Do not rename the outputs that have "(no feature)" in their name**
+
+### Create a count matrix
+
+The htseq tool is designed to produce a separate table of counts for each sample. This is not particularly useful for other tools such as Degust (see next section) which require the counts to be presented in a data matrix where each row is a gene and each column is a particular sample in the dataset.
+
+<div class="information">
+*Collection Operations -> Column Join* on Collections
+</div>
+
+- In the *Tabular Files* section, select the `ht-seq` count files from your history *SRR1552444.htseq*, *SRR1552450*, etc... Holding the CTRL key allows multiple files to be selected
+- Keep *Identifier column* as `1`
+
+
+
+
+# Differential Expression using Degust
+
+Differential expression is possible using Galaxy using the DESeq2 tool (for example). However, our particular recommendation is to use Degust for a more interactive experience. For this section, we will be using counts generated on the *full dataset*, rather than the *downsampled* data analysed in the previous section. These counts are available in the file `GSE114013_salmon_counts.csv`.
 
 
 ## Differential expression
@@ -464,7 +554,7 @@ This is a multidimensional scaling plot which represents the variation between s
 ### Exercise
 
 <div class="exercise">
-**Question:** It seems that the differential expression analysis is detecting lots of genes. However, does this tell the whole story about the dataset? What do you think is the main factor separating samples on the x-axis, and thus explaning the most variation in the data?
+**Question:** It seems that the differential expression analysis is detecting lots of genes. However, does this tell the whole story about the dataset? What do you think is the main factor separating samples on the x-axis, and thus explaining the most variation in the data?
 
 </div>
 
@@ -501,13 +591,11 @@ If you didn't manage to complete these analyses, you can download the files from
 
 ### Overlapping Gene Lists
 
-![](https://upload.wikimedia.org/wikipedia/en/e/e4/Venn_stained_glass.jpg)
-
 We might sometimes want to compare the lists of genes that we identify using different methods, or genes identified from more than one contrast. In our example dataset we can compare the genes in the contrast of ITRACONAZOLE vs DMSO in HT55 and SW948 cells
 
 The website *venny* provides a really nice interface for doing this.
 
-![](media/venny-config.png)
+![](media/venny_config.png)
 
 - Open both your *HT55: ITRACONAZOLE vs DMSO* and *SW948: ITRACONAZOLE vs DMSO* results files in Excel
 - Go to the venny website
@@ -519,7 +607,14 @@ The website *venny* provides a really nice interface for doing this.
 
 ### Refined analysis
 
-The final analysis we will perform is to include all the samples, but correct for the differences in cell-line. This is achieved by telling Degust about the *hidden factors* in our dataset.
+The final analysis we will perform is to include all the samples, but correct for the differences in cell-line. This is achieved by telling Degust about the *hidden factors* in our dataset. The hidden factor in this dataset is whether the sample is from the **HT55** or **SW948** samples. However, we only need to specify which samples are from HT55. Other hidden factors you might need to include could be (depending on the MDS plot) :-
+
+- sample batch
+- gender
+
+See below for the correct configuration to include the hidden factors.
+
+<img src="media/hidden_factor.png"/>
 
 You are now ready to complete the final section on [annotation and enrichment analysis](03-enrichment.nb.html)
 
