@@ -35,6 +35,10 @@ Our primary analysis of interest is to identify *Single Nucleotide Polymorphisms
 
 <img src="media/germline_vs_somatic.PNG"/>
 
+We have already started to look at our data in IGV, and can identify possible mutations by eye:-
+
+<img src="media/poss_variant.png"/>
+
 # Preparation and Data Upload
 
 If attending this workshop in-person you should have access to a private queue on the usegalaxy.eu server that will allow your jobs to run quicker.
@@ -49,7 +53,7 @@ We are using data from a *trio* of individuals that have been downsampled to be 
 
 - https://zenodo.org/record/60520#.YYkrqtbP3xo
 
-Download all the files ending in `.bam` to your laptop
+Download all the files ending in `.bam` to your laptop. These files can also be found in the shared google drive.
 
 You can import the data by:
 
@@ -90,7 +94,7 @@ FASTA/FASTQ -> **FastQC** Read Quality reports
 </div>
 
 
-We have already used this tool in the Introduction to NGS session. It will provide a quality assessment on the base-calls of our sequencing. It does not use any information about the alignment, but can still be run on `.bam` files due to the raw sequences being present in the `.bam` file.
+We have already used this tool in the Introduction to NGS session. It will provide a quality assessment of the base-calls of our sequencing. It does not use any information about the alignment, but can still be run on `.bam` files due to the raw sequences being present in the `.bam` file.
 
 
 ### idxstats
@@ -163,7 +167,7 @@ We will now go through a series of steps to produce a set of variant-calls ready
 
 ## Mark Duplicates with Picard
 
-As we have seen, it does not appear the duplicates have been identified in the data. This is commonly-done using the `Picard` suite of tools. Recall that these are reads that have exactly the *same sequence* and map to the *same genomic location*, so we assume that they are arise from the same DNA fragment. Our variant calling approaches rely on having reliable estimates of how many times a particular genomic location has been sequenced, so it is important to mark locations containing duplicates.
+As we have seen, it does not appear the duplicates have been identified in the data. This is commonly-done using the `Picard` suite of tools. Recall that PCR Duplicates are reads that have exactly the *same sequence* and map to the *same genomic location*, so we assume that they are arise from the same DNA fragment. Our variant calling approaches rely on having reliable estimates of how many times a particular genomic location has been sequenced, so it is important to mark locations containing duplicates.
 
 
 <div class="information">
@@ -172,7 +176,7 @@ Picard -> **MarkDuplicates** examine aligned records in BAM datasets to locate d
 
 </div>
 
-- Select the `father.bam`, `mother.bam` and `patient.bam` files in the **Select SAM/BAM dataset or dataset collection**. Don't forget to can select multiple bam files using the multiple datasets button.
+- Select the `father.bam`, `mother.bam` and `patient.bam` files in the **Select SAM/BAM dataset or dataset collection**. Don't forget you can select multiple bam files using the multiple datasets button.
 - No other options need to be changed
 
 It is recommended that you rename the BAM outputs so that you can keep track of your analysis; for example `patient_nodups.bam`, `father_nodups.bam` and `mother_nodups.bam`.
@@ -180,7 +184,7 @@ It is recommended that you rename the BAM outputs so that you can keep track of 
 
 ## Call variants in the Patient sample with `Freebayes`
 
-We will call variants in our trio of samples using the `FreeBayes` tool. As it's name implies, this is a method based on computing Bayesian probabilities. A more-detailed explanation is provided in [this Galaxy tutorial](https://training.galaxyproject.org/training-material/topics/variant-analysis/tutorials/dip/tutorial.html).
+We will call variants in our trio of samples using the `FreeBayes` tool. As it's name implies, this is a method based on computing *Bayesian* probabilities. A more-detailed explanation is provided in [this Galaxy tutorial](https://training.galaxyproject.org/training-material/topics/variant-analysis/tutorials/dip/tutorial.html).
 
 The required parameters for freebayes are given below. Notice that we restrict the analysis to just chromosome 22.
 
