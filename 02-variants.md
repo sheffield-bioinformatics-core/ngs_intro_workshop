@@ -628,3 +628,7 @@ Some information on the databases that wAnnovar uses can be found in the documen
 - Filter the output from this tool to just the calls that PASS it's filtering
 
 </div>
+
+Ideally, we would *intersect* the results from both callers to get a higher confidence set. This could be done using the VCFIntersect tool we have seen previously. However, due to the restricted nature of the dataset, this won't yield any results.
+
+## Recap
