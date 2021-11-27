@@ -33,11 +33,33 @@ We will use training materials provided by the Galaxy Project and sign-post to r
 
 Our primary analysis of interest is to identify *Single Nucleotide Polymorphisms* (SNPs) that are germline or somatic. The same methods can also be used to identify small insertions and deletions - *indels*.
 
+<div class="information"/>
+
+We will not be considering other types of genomic variation, such as large insertions and deletions and re-arrangements. Although these are also possible in Galaxy
+
+e.g. 
+
+- **Variant Calling** -> **Delly cnv** discover and genotype copy-number variants
+- **Variant Calling** -> **Delly call** and genotype structural variants
+</div>
+
 <img src="media/germline_vs_somatic.PNG"/>
 
 We have already started to look at our data in IGV, and can identify possible mutations by eye:-
 
 <img src="media/poss_variant.png"/>
+
+However, the situation is rarely straightforward. Whether we really believe that a variant is present at a particular position will depend on several factors
+
+- Number of reads containing *reference* base (C in above example)
+- Number of reads containing *alternative* base (T in above example)
+- Overall depth of position (coverage)
+- Quality of base calls
+- Mapping quality
+
+Specialised tools have been developed to identify genomic positions in our sequencing data where a variant is possible; and assign some kind of confidence in the results
+
+
 
 # Preparation and Data Upload
 
@@ -161,6 +183,14 @@ If we are reasonably happy with the QC, the next step would be to inspect the da
 
 </div>
 
+<div class="information">
+Using a different genome version for alignment and variant calling may be problematic for downstream analysis. If we did not align the data ourselves are not 100% sure about the exact genome used, it might be wise to re-align the data.
+
+We can start this process by extracting the *fastq* reads from the `.bam` file and following the workflow from the previous session
+
+**Picard** -> **SamToFastq** extract reads and qualities from SAM/BAM dataset and convert to fastq
+</div>
+
 # Post-processing of reads and Variant Calling
 
 We will now go through a series of steps to produce a set of variant-calls ready for further interpretation.
@@ -185,6 +215,14 @@ It is recommended that you rename the BAM outputs so that you can keep track of 
 ## Call variants in the Patient sample with `Freebayes`
 
 We will call variants in our trio of samples using the `FreeBayes` tool. As it's name implies, this is a method based on computing *Bayesian* probabilities. A more-detailed explanation is provided in [this Galaxy tutorial](https://training.galaxyproject.org/training-material/topics/variant-analysis/tutorials/dip/tutorial.html).
+
+In brief, the tool considers the bases that are called at a given position and assess what the *most-likely* genotype is. 
+
+------
+
+<img src="media/variant_calling.png"/>
+
+------
 
 The required parameters for freebayes are given below. Notice that we restrict the analysis to just chromosome 22.
 
@@ -218,7 +256,7 @@ In the previous section, you will have produced a *vcf* file. The `.vcf` format 
 
 We don’t require any specialised software to look at the contents of a vcf file. They can be opened in a standard text editor, however your laptop may try and interpret the file as containing contact information (virtual contact file).
 
-In a similar vein to the `.bam` and `.sam` files we saw earlier, the `.vcf` files contains many lines of header information. These describe the reference sequences and information on how the variant calls and genotypes are represented.
+In a similar vein to the `.bam` and `.sam` files we saw earlier, the `.vcf` files contains many lines of header information. These describe the reference sequences and information on how the variant calls and genotypes are represented. **N.B. Even though we only called variants on a particular genomic region, the reference sequences used in the original alignment will still be present here**
 
 It may ease the interpretation of these new files by running the following tool to convert them into a tab-delimited file
 
@@ -280,7 +318,7 @@ AC=2  AC  2
 ```
 etc...
 
-The meaning of each key can be discovered by looking at the header for the file. e.g. `##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">`. So this variant has a total of 3 bases covering it. 
+The meaning of each key can be discovered by looking at the header for the file. e.g. `##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">`. So this variant has a total of 3 bases covering it. **Don't worry if you don't understand all of the entries here**
 
 
 The column in the file describes the genotype calls for sample. In the sample column (`RS024V-FATHER`) for the first variant we see the entry
