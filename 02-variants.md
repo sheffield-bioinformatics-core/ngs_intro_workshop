@@ -59,7 +59,7 @@ However, the situation is rarely straightforward. Whether we really believe that
 
 Specialised tools have been developed to identify genomic positions in our sequencing data where a variant is possible; and assign some kind of confidence in the results
 
-
+Identifying potential variants is only the start of the analysis. In a disease context, we will want to known which variants are potentially harmful (the majority won't be).
 
 # Preparation and Data Upload
 
@@ -480,12 +480,16 @@ Variant Calling -> **SnpSift Filter** Filter variants using arbitrary expression
 
 Like the previous filtering tool, this requires us to write an expression to specify how we filter the data. However, the expressions we write can be more complicated. Check out some of the examples.
 
-In particular, we can use functions `isRef()`, `isVariant()` to test if the calls for a particular sample match the reference or alternative. The expression `GEN[0]`, `GEN[1]` and `GEN[2]` are used to represent the genotypes for the 1st, 2nd and 3rd samples respectively.
+In particular, we can use functions `isRef()`, `isVariant()` to test if the calls for a particular sample match the reference or alternative. The expression `GEN[0]`, `GEN[1]` and `GEN[2]` are used to represent the genotypes for the 1st, 2nd and 3rd samples respectively. 
 
 - **Variant input file in VCF format** your filtered file from the previous step
 - **Filter criteria** `isRef(GEN[0]) & isVariant(GEN[1]) & isRef(GEN[2])`
 
-<div class="information">
+<div class="warning">
+The filtering criteria given above assumes that genotypes appear in the order `Father`, `Patient`, `Mother` in the `vcf` file. If they do not appear in this order, you will need to change the criteria.
+</div>
+
+<div class="warning">
 There might not be any sample-specific variants in this particular downsampled dataset, so if you want to see the tool in action you want have to select the "raw" `trio.vcf` file instead
 </div>
 
@@ -543,7 +547,10 @@ Note that in the Species box you can search and select which organism you are in
 
 # Variant Calling for Matched Normal Samples
 
-In this section we will consider the case when we want to find variants that exist in a patient's tumour sample, but not their normal tissue. Such analyses require specialised methods
+In this example we will consider the case when we want to find variants that exist in a patient's tumour sample, but not their normal tissue. Such analyses are related to the germline example, but have other considerations:-
+
+- contamination of normal tissue in the tumour
+- tumour heterogeneity
 
 
 ## Uploading the data
@@ -570,6 +577,8 @@ Variant Calling -> **VarScan somatic** Call germline/somatic and LOH variants fr
 - Select `Use a genome from my history` as choose the uploaded `hg19.chr5_12_17.fa.gz` 
 - Choose `normal.bam` and `tumour.bam` as the **aligned reads from normal sample** and **aligned reads from tumor sample** respectively
 
+Like `freebayes`, this method will give us an output in `vcf` format. The genotypes for the tumour and normal are reported and we can use the `INFO` entries to determine which calls are specific to the tumour. The tool also provides some quality assessment of the calls that can be used to filter possible false positives. The filtering can be performed using `VCFfilter` as before.
+
 <div class="information">
 Variant Calling -> **VCFfilter** filter VCF data in a variety of attributes
 </div>
@@ -584,15 +593,38 @@ The number of potential variants is quite large, but we can filter using `VCFfil
 **Exercise**: Based on the header of the varscan output, what filter would you need to restrict the data to just somatic mutations? Add this filter to VCFfilter.
 </div>
 
-## Run the STRELKA to identify somatic calls
+For the annotation of the calls we will again use a tool outside Galaxy, so **download your filtered file**.
+
+## Annotation of the somatic calls
+
+The ensembl VEP tool that we have used previously can be used to annotate the calls. Another relevant tool is wAnnovar, which can add annotations from clinically-relevant databases such as [clinvar](https://www.ncbi.nlm.nih.gov/clinvar/intro/) and [COSMIC](https://cancer.sanger.ac.uk/cosmic).
+
+<img src="media/wAnnovar_home.png"/>
+
+- Access the wAnnovar webpage; [https://wannovar.wglab.org/](https://wannovar.wglab.org/)
+- Select the filtered varscan output as the Input file
+- Enter a valid email address and Sample Name
+
+You will receive an email annotation when the annotation process has finished. The results can then be viewed in a web browser, or downloaded.
+
+The number of columns may seem a bit daunting, and you probably won't need to use all of them. Here is a brief summary
+
+- **ExonicFunc** if the variant occurs within a coding region, what impact does it have on the protein?
+- **1000G...** frequency of the variant within various 1000 Genomes samples
+- **COSMIC ID** ID of the variant in the COSMIC database (if applicable)
+- **CLINVAR SIG** clinical significance if variant appears in CLINVAR
 
 <div class="information">
-Variant Calling -> **Strelka Somatic** small variant caller for somatic variation in tumor/normal sample pairs
+Some information on the databases that wAnnovar uses can be found in the documentation for the *command-line* version of the tool
+
+- [https://annovar.openbioinformatics.org/en/latest/user-guide/filter/#summary-of-databases](https://annovar.openbioinformatics.org/en/latest/user-guide/filter/#summary-of-databases)
+
 </div>
 
-- **Select normal sample file** `normal.bam`
-- **Select tumor sample file** `tumor.bam`
-- **Choose the source for the reference genome** History (`hg19.chr5_12_17.fa.gz`)
+<div class="exercise">
+**Exercise** There are many possible tools for detecting somatic variants. Another that is present in Galaxy is `STRELKA`
 
+- Locate the `STRELKA` tool and run somatic-calling on the tumour / normal pair
+- Filter the output from this tool to just the calls that PASS it's filtering
 
-
+</div>
