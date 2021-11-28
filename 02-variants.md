@@ -61,6 +61,11 @@ Specialised tools have been developed to identify genomic positions in our seque
 
 Identifying potential variants is only the start of the analysis. In a disease context, we will want to known which variants are potentially harmful (the majority won't be).
 
+The workflow is summarised below
+
+<img src="media/variant_workflow.png"/>
+
+
 # Preparation and Data Upload
 
 If attending this workshop in-person you should have access to a private queue on the usegalaxy.eu server that will allow your jobs to run quicker.
@@ -631,4 +636,9 @@ Some information on the databases that wAnnovar uses can be found in the documen
 
 Ideally, we would *intersect* the results from both callers to get a higher confidence set. This could be done using the VCFIntersect tool we have seen previously. However, due to the restricted nature of the dataset, this won't yield any results.
 
-## Recap
+# Recap
+
+We started our analysis from data that had been aligned to a reference genome. The popular freebayes tools was used to identify genomic positions with evidence of a difference from the reference. With further filtering and annotation we can obtain a list of medically-relevant variants for follow-up.
+
+<img src="media/variant_workflow.png"/>
+
