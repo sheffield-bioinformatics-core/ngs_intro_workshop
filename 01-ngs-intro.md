@@ -628,7 +628,7 @@ https://igv.org/app/
 
 2. Load a reference Genome and some Data Tracks
 
-By default, IGV should load with Human genome version *hg19* already loaded. It is essential that you use the **same genome version** that the reads were aligned to. You can check / change the genome by clicking the drop-down menu in the upper-left
+By default, IGV will load with the last genome that you used. It is essential that you use the **same genome version** that the reads were aligned to; in our case **hg38**. You can check / change the genome by clicking the drop-down menu in the upper-left
 
 ![](media/select_genome.PNG)
 
