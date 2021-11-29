@@ -379,6 +379,13 @@ A total of 8 outputs are created and we are only interested in the outputs with 
 **(Optional)** If you have time, re-run `FastQC` on these trimmed files. What differences do you see?
 </div>
 
+-----
+
+<div class="information">
+If your QC reports suggest contamination by the *adapter* sequences used during sequencing, Trimmomatic has the option to remove these by clicking the **Perform initial ILLUMINACLIP step** button. This is an option to select which Illumina sequencing you have performed in order that the correct adapter sequences can be identified.
+</div>
+
+
 # Section 5: Alignment
 
 <div class="information">
