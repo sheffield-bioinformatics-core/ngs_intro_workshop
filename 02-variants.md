@@ -532,6 +532,10 @@ The screen will refresh by itself, and eventually a green *Done* box should appe
 
 The results can be inspected online, or downloaded. Downloading as a text file is better for browsing in Excel, and can also be manipulated in languages such as R.
 
+The Consequence column can be used to prioritise variants of interest. It will indicate if the variant detected is likely to have an impact on transcription. This page describes all the possible entries that could appear:-
+
+- [https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html)
+
 <div class="exercise">
 **Exercise:** Use Ensembl VEP to annotate your filtered VCF file, and take some time to digest the results.
 </div>
