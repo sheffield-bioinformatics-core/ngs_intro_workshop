@@ -111,8 +111,6 @@ It is worth bearing the following in-mind before planning to do your own Bioinfo
 
 # Section 1: Preparation 
 
-**Ignore if you have already created a Galaxy account and uploaded the example data in a previous exercise**
-
 #### 1.  Register as a new user at Europen public Galaxy server
 
 - https://usegalaxy.eu
