@@ -80,7 +80,40 @@ The data for this tutorial comes from a Journal of Experimental Medicine paper [
 
 For this tutorial, we will assume that the *wet-lab* stages of the experiment have been performed and we are now in the right-hand branch of the workflow. In this tutorial we will demonstrate the steps of **Quality assessment**, **alignment**, **quantification** and **differential expression testing**.
 
-The fastq data for this experiment were made available on the Sequencing Read Archive with accession SRP144496. **For the purposes of this workshop we have created a downsampled dataset**
+The fastq data for this experiment were made available on the Sequencing Read Archive (SRA) with accession SRP144496. **For the purposes of this workshop we have created a downsampled dataset**
+
+The experimental design for the dataset is summarised in the table below.
+
+run	| name	| cell_line	| condition
+----|-------|-----------|--------- 
+SRR7108388	| HT55_CONT_1	| HT55	| DMSO
+SRR7108389	| HT55_CONT_2	| HT55	| DMSO
+SRR7108390	| HT55_CONT_3	| HT55	| DMSO
+SRR7108391	| HT55_CONT_4	| HT55	| DMSO
+SRR7108392	| HT55_ITRA_1	| HT55	| ITRACONAZOLE
+SRR7108393	| HT55_ITRA_2	| HT55	| ITRACONAZOLE
+SRR7108394	| HT55_ITRA_3	| HT55	| ITRACONAZOLE
+SRR7108395	| HT55_ITRA_4	| HT55	| ITRACONAZOLE
+SRR7108396	| SW948_CONT_1 | SW948	| DMSO
+SRR7108397	| SW948_CONT_2 | SW948	| DMSO
+SRR7108398	| SW948_CONT_3 | SW948	| DMSO
+SRR7108399	| SW948_CONT_4 | SW948	| DMSO
+SRR7108400	| SW948_ITRA_1 | SW948	| ITRACONAZOLE
+SRR7108401	| SW948_ITRA_2 | SW948	| ITRACONAZOLE
+SRR7108402	| SW948_ITRA_3 | SW948	| ITRACONAZOLE
+SRR7108403	| SW948_ITRA_4 | SW948	| ITRACONAZOLE
+
+#### Digression: How to download raw sequencing files
+
+The Sequencing Read Archive (SRA) is commonly-used to store the raw data from sequencing experiements and can be accessed through the NCBI website. However, the interface is not particularly friendly and the links to download data and not easy to obtain.
+
+An easier alternative exists in the form of SRA Explorer
+
+- [https://sra-explorer.info/](https://sra-explorer.info/)
+
+<img src="media/sra_explorer.png"/>
+
+The SRA accession (usually found in a paper describing the dataset) can be entered into the Search box, and all the samples belonging to that dataset should be found. Samples of interest can be saved, and upon "checkout" the download links (URLs) will be displayed. A command-line tool such as `curl` or `wget` can then be used to download the files locally.
 
 ## Section 1: Preparation
 #### 1. Sign-up to the European Galaxy server
@@ -108,32 +141,14 @@ https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sha
 - `SRR7108393.fastq.gz`
 - `Homo_sapiens.GRCh38.cdna.all.fa.gz`
 - `Homo_sapiens.GRCh38.104.gtf.gz`
+- `tx2gene.txt`
 
 
 #### 3.  Import the RNA-seq data for the workshop.
 
 We can going to import the [*fastq* files](https://en.wikipedia.org/wiki/FASTQ_format) for this experiment. This is a standard format for storing raw sequencing reads and their associated quality scores. To make the practical quicker, we have *downsampled* the original fastq files to a quarter of a million reads.
 
-The experimental design for the dataset is summarised in the table below.
 
-run	| name	| cell_line	| condition
-----|-------|-----------|--------- 
-SRR7108388	| HT55_CONT_1	| HT55	| DMSO
-SRR7108389	| HT55_CONT_2	| HT55	| DMSO
-SRR7108390	| HT55_CONT_3	| HT55	| DMSO
-SRR7108391	| HT55_CONT_4	| HT55	| DMSO
-SRR7108392	| HT55_ITRA_1	| HT55	| ITRACONAZOLE
-SRR7108393	| HT55_ITRA_2	| HT55	| ITRACONAZOLE
-SRR7108394	| HT55_ITRA_3	| HT55	| ITRACONAZOLE
-SRR7108395	| HT55_ITRA_4	| HT55	| ITRACONAZOLE
-SRR7108396	| SW948_CONT_1 | SW948	| DMSO
-SRR7108397	| SW948_CONT_2 | SW948	| DMSO
-SRR7108398	| SW948_CONT_3 | SW948	| DMSO
-SRR7108399	| SW948_CONT_4 | SW948	| DMSO
-SRR7108400	| SW948_ITRA_1 | SW948	| ITRACONAZOLE
-SRR7108401	| SW948_ITRA_2 | SW948	| ITRACONAZOLE
-SRR7108402	| SW948_ITRA_3 | SW948	| ITRACONAZOLE
-SRR7108403	| SW948_ITRA_4 | SW948	| ITRACONAZOLE
 
 <div class="information">
 
@@ -155,13 +170,15 @@ You can import the data by:
 `SRR7108392.fastq.gz`
 `SRR7108393.fastq.gz`
 
-also upload the files `Homo_sapiens.GRCh38.cdna.all.fa.gz` and `Homo_sapiens.GRCh38.104.gtf.gz`. These are reference files that we will use later.
+also upload the files `Homo_sapiens.GRCh38.cdna.all.fa.gz`, `Homo_sapiens.GRCh38.104.gtf.gz` and `tx2gene.txt`. These are reference files that we will use later.
 
-3.  You should now have these 4 files in your history:
+3.  You should now have these 4 fastq files in your history:
     - `SRR7108388.fastq.gz`
     - `SRR7108389.fastq.gz`
     - `SRR7108392.fastq.gz`
     - `SRR7108393.fastq.gz`
+
+The annotation files may take a while longer to upload
 
 <div class="information">
 The `.gz` at the end of each file name means that it is *compressed* (like a zip file). 
@@ -235,7 +252,7 @@ We can align our RNA-seq reads to a reference *genome*, and then overlap with kn
 
 1) cDNA fasta file
 
-This file has been provided in the google drive folder
+This file has been provided in the google drive folder and should have been uploaded to your Galaxy history.
 
 - [https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing](https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing)
 
@@ -289,17 +306,17 @@ This time, select only the *Gene Stable ID* tickbox in the GENE box. Expand the 
 
 - Select the *Homo_sapiens_GRCh38.cdna.all.fa.gz* file as the Transcripts fasta file
 - Select all your uploaded fastq files as your Data Input FASTQ/FASTA file
-- Scroll down *File containing a mapping of transcripts to genes* and select the *mart_export.txt* file
+- Scroll down to *File containing a mapping of transcripts to genes* and select the `tx2gene.txt` file
 
 Two jobs will now be queued for each sample fastq file. The Quantification output will contain transcript-level data, and the Gene Quantification output will be at the *gene-level*. We should expect the number of lines in the Gene Quantification file to be substantially less. If not, you will need to check that your transcript mapping file was correct.
 
-The Gene Quantification output from each sample comprises the following columns:-
+The Gene Quantification output from each sample comprises the following columns (taken from the [salmon documentation](https://salmon.readthedocs.io/en/latest/file_formats.html))
 
-- Name; The Ensembl Gene ID (Gene Stable ID from biomart)
-- Length;
-- Effective Length;
-- TPM; Transcripts Per Million
-- NumReads; The raw number of reads
+- Name — This is the name of the target transcript provided in the input transcript database (FASTA file).
+- Length — This is the length of the target transcript in nucleotides.
+- EffectiveLength — This is the computed effective length of the target transcript. It takes into account all factors being modeled that will effect the probability of sampling fragments from this transcript, including the fragment length distribution and sequence-specific and gc-fragment bias (if they are being modeled).
+- TPM — This is salmon’s estimate of the relative abundance of this transcript in units of Transcripts Per Million (TPM). TPM is the recommended relative abundance measure to use for downstream analysis.
+- NumReads — This is salmon’s estimate of the number of reads mapping to each transcript that was quantified. It is an “estimate” insofar as it is the expected number of reads that have originated from each transcript given the structure of the uniquely mapping and multi-mapping reads and the relative abundance estimates for each transcript.
 
 Note that we are using a downsampled dataset, so the majority of NumReads will be zero.
 
@@ -311,9 +328,9 @@ Methods for detecting differential expression are likely to want data in the for
 **RNA Analysis** -> **Salmon quantmerge**
 </div>
 
-Use the +Insert Quant file and names button repeatedly to select each of your *Gene Quantification* outputs. The One-word sample names text box can be used to create a shorter column name for each output.
+Use the +Insert Quant file and names button repeatedly to select each of your **Gene Quantification** outputs. The One-word sample names text box can be used to create a shorter column name for each output.
 
-Once all the Gene Quantification files have been selected the drop-down menu under **Columns** should be changed from Length to NumReads.
+Once all the Gene Quantification files have been selected the drop-down menu under **Columns** should be changed from Length to **NumReads**.
 
 After the tool has finished you should have a table with 
 
@@ -622,5 +639,88 @@ See below for the correct configuration to include the hidden factors.
 
 <img src="media/hidden_factor.png"/>
 
-You are now ready to complete the final section on [annotation and enrichment analysis](03-enrichment.nb.html)
+# Enrichment and pathways analysis
+
+In the early days of microarray analysis, people were happy if they got a handful of differentially-expressed genes that they could validate or follow-up. However, with later technologies (and depending on the experimental setup) we might have thousands of statistically-significant results, which no-one has the time to follow-up. Also, we might be interested in pathways / mechanisms that are altered and not just individual genes.
+
+In this section we move towards discovering if our results are ***biologically significant***. Are the genes that we have picked statistical flukes, or are there some commonalities. 
+
+There are two different approaches one might use, and we will cover the theory behind both. The distinction is whether you are happy to use a hard (and arbitrary) threshold to identify DE genes.
+
+
+## Over-representation analysis
+
+"Threshold-based" methods require defintion of a statistical threshold to define list of genes to test (e.g. FDR < 0.01). Then a *hypergeometric* test or *Fisher's Exact* test generally used. They are typically used in situations where plenty of DE genes have been identified, and people often use quite relaxed criteria for identifying DE genes (e.g. raw rather than adjusted p-values or FDR value)
+
+The question we are asking here is;
+
+> ***"Are the number of DE genes associated with Theme X significantly greater than what we might expect by chance alone?"***
+
+We can answer this question by knowing
+
+- the total number of DE genes
+- the number of genes in the gene set (pathway or process)
+- the number of genes in the gene set that are found to be DE
+- the total number of tested genes (background)
+
+The formula for Fishers exact test is;
+
+$$ p = \frac{\binom{a + b}{a}\binom{c +d}{c}}{\binom{n}{a +c}} = \frac{(a+b)!(c+d)!(a+c)!(b+d)!}{a!b!c!d!n!} $$
+
+with:-
+
+```{r}
+df <- data.frame(`In DE List`  = c("a","c","a+c"), `Not in DE list` = c("b","d","b+d"), RowTotal = c("a +b","c+d","a+b+c+d (=n)"))
+rownames(df) <- c("In Gene Set", "Not in Gene Set","Column Total")
+df
+```
+
+In this first test, our genes will be grouped together according to their Gene Ontology (GO) terms:- http://www.geneontology.org/
+
+
+## Using GOrilla
+
+There are several popular online tools for performing enrichment analysis
+
+We will be using the online tool [GOrilla](http://cbl-gorilla.cs.technion.ac.il/) to perform the pathways analysis. It has two modes; the first of which accepts a list of *background* and *target* genes. 
+
+<div class="alert alert-warning">
+**Question:**
+Use GOrilla to find enriched pathways in the Basal pregnant vs lactation analysis
+</div>
+
+1. Go to http://cbl-gorilla.cs.technion.ac.il/
+2. Read the “Running Example”
+
+![](media/gorilla-example.png)
+
+3. Choose Organism: `Mus Musculus`
+4. Choose running mode: `Two unranked lists of genes`
+5. Paste the gene symbols corresponding to DE genes in *HT55: ITRACONAZOLE vs DMSO* into the Target set.
+  + **The shortcut CTRL + SPACE will let you select an entire column**
+6. Paste the gene symbols from the Background set into the other box.
+7. Choose an Ontology: `Process`
+8. `Search Enriched GO terms`
+
+You should be presented with a graph of enriched GO terms showing the relationship between the terms. Each GO term is coloured according to its statistical significance.
+
+Below the figure is the results table. This links to more information about each GO term, and lists each gene in the category that was found in your list. The enrichment column gives 4 numbers that are used to determine enrichment (similar to the Fisher exact test we saw earlier)
+
+- N, total number of genes (should be the same in all rows)
+- B, total number of genes annotated with the GO term
+- n, total number of genes that were found in the list you uploaded (same for all rows)
+- b, number of genes in the list you uploaded that intersect with this GO term
+
+If you have time, you can also experiment uploading the same genes lists to the online tools [DAVID](https://david.ncifcrf.gov/tools.jsp) and [GeneTrail](https://genetrail2.bioinf.uni-sb.de/)
+
+
+
+
+## Threshold-free analysis
+
+This type of analyis is popular for datasets where differential expression analysis does not reveal many genes that are differentially-expressed on their own. Instead, it seeks to identify genes that as a group have a tendancy to be near the extremes of the log-fold changes.
+
+The Broad institute has made this analyis method popular and provides [a version of GSEA](http://software.broadinstitute.org/gsea/index.jsp) that can be run via a java application. 
+
+![](media/overexpressed-gsea.png)
 
