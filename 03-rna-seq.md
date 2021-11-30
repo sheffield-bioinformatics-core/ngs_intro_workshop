@@ -594,12 +594,14 @@ We will now repeat the analysis, but only for samples from the *HT55* cell-line.
 </div>
 
 <div class="exercise">
-**Exercise**: Repeat the analysis for SW948 samples and download the table of differentially-expressed results (same FDR and log fold-change) to `SW948.ITRACONAZOLE_vs_DMSO.csv`
+**Exercise:** Rest the FDR cut-off and abs LogFC cutoffs back to default and *download* the file and rename to `background.csv`. We will use this later.
 </div>
 
 <div class="exercise">
-**Exercise:** Rest the FDR cut-off and abs LogFC cutoffs back to default and *download* the file and rename to `background.csv`. We will use this later.
+**Exercise**: Repeat the analysis for SW948 samples and download the table of differentially-expressed results (same FDR and log fold-change) to `SW948.ITRACONAZOLE_vs_DMSO.csv`
 </div>
+
+
 
 ### File Downloads
 
@@ -669,11 +671,12 @@ $$ p = \frac{\binom{a + b}{a}\binom{c +d}{c}}{\binom{n}{a +c}} = \frac{(a+b)!(c+
 
 with:-
 
-```{r}
-df <- data.frame(`In DE List`  = c("a","c","a+c"), `Not in DE list` = c("b","d","b+d"), RowTotal = c("a +b","c+d","a+b+c+d (=n)"))
-rownames(df) <- c("In Gene Set", "Not in Gene Set","Column Total")
-df
-```
+|              | is DE | Not DE | Row Total |
+|------------- | ------|--------|-----------|
+| In Gene Set   | a     | b      | a + b     |
+| Not in Gene Set  | c     | d      | c + d     |
+| Column Total    |  a + c | b + d  | a + b + c + d = n |
+
 
 In this first test, our genes will be grouped together according to their Gene Ontology (GO) terms:- http://www.geneontology.org/
 
@@ -682,24 +685,16 @@ In this first test, our genes will be grouped together according to their Gene O
 
 There are several popular online tools for performing enrichment analysis
 
-We will be using the online tool [GOrilla](http://cbl-gorilla.cs.technion.ac.il/) to perform the pathways analysis. It has two modes; the first of which accepts a list of *background* and *target* genes. 
-
-<div class="alert alert-warning">
-**Question:**
-Use GOrilla to find enriched pathways in the Basal pregnant vs lactation analysis
-</div>
+We will be using the online tool [GOrilla](http://cbl-gorilla.cs.technion.ac.il/) to perform the pathways analysis as it is particularly straightforward. It has two modes; the first of which accepts a list of *background* and *target* genes. 
 
 1. Go to http://cbl-gorilla.cs.technion.ac.il/
-2. Read the “Running Example”
-
-![](media/gorilla-example.png)
-
-3. Choose Organism: `Mus Musculus`
-4. Choose running mode: `Two unranked lists of genes`
-5. Paste the gene symbols corresponding to DE genes in *HT55: ITRACONAZOLE vs DMSO* into the Target set.
+2. Choose Organism: `Homo Sapiens`
+3. Choose running mode: `Two unranked lists of genes`
+4. Paste the gene symbols corresponding to DE genes in *SW948: ITRACONAZOLE vs DMSO* into the Target set.
   + **The shortcut CTRL + SPACE will let you select an entire column**
-6. Paste the gene symbols from the Background set into the other box.
-7. Choose an Ontology: `Process`
+5. Paste the gene symbols from the Background set into the other box. This should be the names of all genes present in the Background file. i.e. all genes that were tested.
+6. Choose an Ontology: `Process`
+7. Under advanced options, tick **Output results in Microsoft Excel format**
 8. `Search Enriched GO terms`
 
 You should be presented with a graph of enriched GO terms showing the relationship between the terms. Each GO term is coloured according to its statistical significance.
@@ -711,16 +706,31 @@ Below the figure is the results table. This links to more information about each
 - n, total number of genes that were found in the list you uploaded (same for all rows)
 - b, number of genes in the list you uploaded that intersect with this GO term
 
-If you have time, you can also experiment uploading the same genes lists to the online tools [DAVID](https://david.ncifcrf.gov/tools.jsp) and [GeneTrail](https://genetrail2.bioinf.uni-sb.de/)
-
-
+<div class="exercise">
+**Exercise:** Repeat the GOrilla to find enriched pathways in the HT55: ITRACONAZOLE vs DMSO analysis. What do you notice?
+</div>
 
 
 ## Threshold-free analysis
 
-This type of analyis is popular for datasets where differential expression analysis does not reveal many genes that are differentially-expressed on their own. Instead, it seeks to identify genes that as a group have a tendancy to be near the extremes of the log-fold changes.
-
-The Broad institute has made this analyis method popular and provides [a version of GSEA](http://software.broadinstitute.org/gsea/index.jsp) that can be run via a java application. 
+This type of analysis is popular for datasets where differential expression analysis does not reveal many genes that are differentially-expressed on their own. Instead, it seeks to identify genes that as a group have a tendancy to be near the extremes of the log-fold changes. The results are typically presented in the following way.
 
 ![](media/overexpressed-gsea.png)
 
+As such, it does not rely on having to impose arbitrary cut-offs on the data. Instead, we need to provide a measure of the importance of each gene such as it's fold-change. These are then used the rank the genes.
+
+The Broad institute has made this analysis method popular and provides [a version of GSEA](http://software.broadinstitute.org/gsea/index.jsp) that can be run via a java application. However, the application can be a bit fiddly to run, so we will use the GeneTrail website instead
+
+- Open the file `background.csv` in Excel and delete all columns except the `SYMBOL` and `ITRA` column.
+<img src="media/GeneTrail_prep.png"/>
+- Go to the GeneTrail website, and select Transcriptomics from the front page
+- Select the **Paste the content of a text file in a tabular format option** and the contents of your modified excel file into the box. **Do not paste the column headings**
+- Click Upload
+
+Hopefully it should recognise your input without any errors, and on the next screen the **Set-level statistic** should be automatically set to **GSEA**
+
+To make the analysis run fast, you can de-select the GO pathways (biological processes, molecular function and cellular compartment)
+
+<div class="warning">
+If your data does not get uploaded, double-check that the column heading **ITRA** has not been pasted into the text box
+</div>
