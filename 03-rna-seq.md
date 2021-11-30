@@ -729,8 +729,9 @@ The Broad institute has made this analysis method popular and provides [a versio
 
 Hopefully it should recognise your input without any errors, and on the next screen the **Set-level statistic** should be automatically set to **GSEA**
 
-To make the analysis run fast, you can de-select the GO pathways (biological processes, molecular function and cellular compartment)
-
 <div class="warning">
 If your data does not get uploaded, double-check that the column heading **ITRA** has not been pasted into the text box
 </div>
+
+To make the analysis run fast, you can de-select the GO pathways (biological processes, molecular function and cellular compartment)
+
