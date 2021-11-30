@@ -98,11 +98,17 @@ Now, use this link to access a special queue. This link will only be active on *
 
 #### 2. Download the course data
 
-The data for this course have all been shared on a google drive. If you have not done so already, please download this directory as a zip file
+The data for this course have all been shared on a google drive. If you have not done so already, please go to this directory and download the following files
 
-https://drive.google.com/open?id=1ftuBP5L-rcXwsEub2mIaSDJ1tceHYFc7
+https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing
 
-<img src="media/drive_download.png">
+- `SRR7108388.fastq.gz`
+- `SRR7108389.fastq.gz`
+- `SRR7108392.fastq.gz`
+- `SRR7108393.fastq.gz`
+- `Homo_sapiens.GRCh38.cdna.all.fa.gz`
+- `Homo_sapiens.GRCh38.104.gtf.gz`
+
 
 #### 3.  Import the RNA-seq data for the workshop.
 
@@ -149,7 +155,7 @@ You can import the data by:
 `SRR7108392.fastq.gz`
 `SRR7108393.fastq.gz`
 
-also upload the file `Homo_sapiens.GRCh38.cdna.all.fa.gz`, which is a reference file that we will use later.
+also upload the files `Homo_sapiens.GRCh38.cdna.all.fa.gz` and `Homo_sapiens.GRCh38.104.gtf.gz`. These are reference files that we will use later.
 
 3.  You should now have these 4 files in your history:
     - `SRR7108388.fastq.gz`
