@@ -80,13 +80,15 @@ We are using data from a *trio* of individuals that have been downsampled to be 
 
 - https://zenodo.org/record/60520#.YYkrqtbP3xo
 
-Download all the files ending in `.bam` to your laptop. These files can also be found in the shared google drive.
+Download all the files ending in `.bam` to your laptop. **These files can also be found in the shared google drive.**
+
+- https://drive.google.com/drive/folders/1SqXZjkkR2JXXsKUPkdls0SoFTb6FVqTp?usp=sharing
 
 You can import the data by:
 
 1.  In the tool panel located on the left, select **Get
     Data > Upload File**. 
-2.  **Choose local file** and browse to the directory containing the files from the google drive and select all the file. Click **Open** to close the file browser. The names of the files should now appear in Galaxy.
+2.  **Choose local file** and browse to the directory containing the files from the **Session 2** google drive and select all the files ending in `.bam`. Click **Open** to close the file browser. The names of the files should now appear in Galaxy.
 3.  Click **Start** to begin the upload
 
 3.  You should now have these 3 files in your history:
