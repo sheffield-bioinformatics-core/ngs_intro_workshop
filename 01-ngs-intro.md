@@ -637,11 +637,6 @@ By default, IGV will load with the last genome that you used. It is essential th
 
 ![](media/select_genome.PNG)
 
-We can also load extra *tracks* into the browser that can help us understand our variant calls. For example, we can load data from *dbSNP* which will tell us about common mutations that already been identified. These can be loaded via *File* -> *Load from Server..* and selecting `dbSNP 1.4.7` from the `Variation and Repeats` section
-
-![](media/available_datasets.PNG)
-
-
 3. Navigate around IGV
 
 When IGV loads up we start with a very high-level view of the genome where *all* chromosomes are visible. Such a view might be useful if we were interested in large copy-number variation across a cohort of samples. However, we are mostly interested in changes at the individual base-level which is not possible to view at this resolution. We need to navigate to a particular region of interest.

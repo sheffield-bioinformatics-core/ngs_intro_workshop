@@ -84,10 +84,11 @@ You can import the data by:
 
 1.  In the tool panel located on the left, select **Get
     Data > Upload File**. 
-2.  **Choose local file** and browse to the directory containing the files from the **Session 2** google drive and select the `mother.bam`, `father.bam` and `patient.bam`. Click **Open** to close the file browser. The names of the files should now appear in Galaxy.
-3.  Click **Start** to begin the upload
+2.  **Choose local file** and browse to the directory containing the files from the **Session 2** google drive and select the `mother.bam`, `father.bam` and `patient.bam`. Click **Open** to close the file browser. The names of the files should now appear in Galaxy. You do not need to upload the `.bai` files.
+3. Set the Genome Build for these files to be `hg19`
+4.  Click **Start** to begin the upload
 
-3.  You should now have these 3 files in your history:
+5.  You should now have these 3 files in your history:
 
 - `mother.bam`
 - `father.bam`
@@ -105,6 +106,7 @@ As we didn't align these data in Galaxy, we don't automatically have a record of
 
 <img src="media/genome_build.PNG"/>
 
+Alternatively, the genome build can be set whilst selecting the files for upload to Galaxy
 
 ## Quality control
 
@@ -352,6 +354,12 @@ So for this particular variant there is a genotype of `1\1` (Homozygous for the 
 A more interactive way to understand the `.vcf` is to view it in IGV. The `.vcf` can be loaded in the same session as the corresponding `.bam` file.
 
 - [http://software.broadinstitute.org/software/igv/viewing_vcf_files](http://software.broadinstitute.org/software/igv/viewing_vcf_files)
+
+
+We can also load extra *tracks* into the browser that can help us understand our variant calls. For example, we can load data from *dbSNP* which will tell us about common mutations that already been identified. These can be loaded via *File* -> *Load from Server..* and selecting `dbSNP 1.4.7` from the `Variation and Repeats` section
+
+![](media/available_datasets.PNG)
+
 
 <div class="exercise">
 
