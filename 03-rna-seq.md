@@ -57,6 +57,14 @@ Those eventually wanted to perform their own RNA-seq analysis (for example in R)
 - [Sheffield Bioinformatics Core](https://sbc.shef.ac.uk/training/rna-seq-in-r-2020-02-13/)
 - [Monash Bioinformatics Platform](http://monashbioinformaticsplatform.github.io/RNAseq-DE-analysis-with-R/)
 
+### Techniques not covered in the workshop
+
+From our experience, the most common application of RNA-seq is still to perform a "differential expression" in order to identify genes, and eventually pathways, that are altered between a set of biological conditions. Therefore we will concentrate on this task in the workshop. We will also be considering *bulk* RNA-seq only. i.e. where our biological sample may be comprised of a pool of heterogeneous cells. Single-cell approaches are becoming more popular, and although there are some similiarities in how these data are processed, a different downstream analysis approach is required.
+
+The Galaxy Training Network provides materials on single-cell analysis, and other applications not covered in this workshop.
+
+- [Galaxy Training Network - Transcriptomics](https://training.galaxyproject.org/training-material/topics/transcriptomics/)
+
 
 ## RNA-seq workflow
 
@@ -115,6 +123,7 @@ An easier alternative exists in the form of SRA Explorer
 
 The SRA accession (usually found in a paper describing the dataset) can be entered into the Search box, and all the samples belonging to that dataset should be found. Samples of interest can be saved, and upon "checkout" the download links (URLs) will be displayed. A command-line tool such as `curl` or `wget` can then be used to download the files locally.
 
+
 ## Section 1: Preparation
 #### 1. Sign-up to the European Galaxy server
 
@@ -140,15 +149,12 @@ https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sha
 - `SRR7108392.fastq.gz`
 - `SRR7108393.fastq.gz`
 - `Homo_sapiens.GRCh38.cdna.all.fa.gz`
-- `Homo_sapiens.GRCh38.104.gtf.gz`
 - `tx2gene.txt`
 
 
 #### 3.  Import the RNA-seq data for the workshop.
 
 We can going to import the [*fastq* files](https://en.wikipedia.org/wiki/FASTQ_format) for this experiment. This is a standard format for storing raw sequencing reads and their associated quality scores. To make the practical quicker, we have *downsampled* the original fastq files to a quarter of a million reads.
-
-
 
 <div class="information">
 
@@ -170,7 +176,7 @@ You can import the data by:
 `SRR7108392.fastq.gz`
 `SRR7108393.fastq.gz`
 
-also upload the files `Homo_sapiens.GRCh38.cdna.all.fa.gz`, `Homo_sapiens.GRCh38.104.gtf.gz` and `tx2gene.txt`. These are reference files that we will use later.
+also upload the files `Homo_sapiens.GRCh38.cdna.all.fa.gz` and `tx2gene.txt`. These are reference files that we will use later.
 
 3.  You should now have these 4 fastq files in your history:
     - `SRR7108388.fastq.gz`
@@ -246,13 +252,13 @@ Question: Repeat the FastQC analysis for the remaining fastq files and combine t
 
 ## Section 2: Quantification
 
-We can align our RNA-seq reads to a reference *genome*, and then overlap with know gene coordinates, but many prefer to align directly to the *transcriptome* sequences using a method such as salmon or kallisto. We will demonstrate the salmon protocol.
+Traditiaonlly, workflows for RNA-seq would align reads to a reference *genome*, and then overlap with know gene coordinates. However, many now prefer to align directly to the *transcriptome* sequences using a method such as [`salmon`](https://salmon.readthedocs.io/en/latest/) or [`kallisto`](https://pachterlab.github.io/kallisto/about). We will demonstrate the salmon protocol.
 
 ### Obtaining the files for salmon
 
 1) cDNA fasta file
 
-This file has been provided in the google drive folder and should have been uploaded to your Galaxy history.
+As we are going to align to a set of *transcripts* rather than the whole genome, we require a file that contains the sequence of each transcript. This file has been provided in the google drive folder and should have been uploaded to your Galaxy history.
 
 - [https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing](https://drive.google.com/drive/folders/1RSuvl9shAw12Bj77uYSUdWtkZ5ST5EWi?usp=sharing)
 
@@ -263,6 +269,23 @@ However, it is useful to know where this file came from in case you are not work
 On the next screen,  Right-click to save the `.cdna.all.fa.gz` to your computer
 
 <img src="media/cdna_download.png"/>
+
+The FASTA file is a large text file that lists all the transcripts for the given organism and their genomic sequence. You *could* open this in a standard text editor if you wished to see the contents. The contents are similar to that of a FASTQ file. In fact, the FASTQ file is a FASTA file with extra quality scores added.
+
+The identifier line for each sequence (starting with `>`) names the transcript and the gene it is associated with. Since we obtained the file from Ensembl, the Transcripts and Genes begin with the `ENST` and `ENSG` respectively.
+
+```
+>ENST00000631435.1 cdna chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142847306:142847317:1 gene:ENSG00000282253.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRBD1 description:T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]
+GGGACAGGGGGC
+>ENST00000415118.1 cdna chromosome:GRCh38:14:22438547:22438554:1 gene:ENSG00000223997.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRDD1 description:T cell receptor delta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12254]
+GAAATAGT
+>ENST00000448914.1 cdna chromosome:GRCh38:14:22449113:22449125:1 gene:ENSG00000228985.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRDD3 description:T cell receptor delta diversity 3 [Source:HGNC Symbol;Acc:HGNC:12256]
+ACTGGGGGATACG
+>ENST00000434970.2 cdna chromosome:GRCh38:14:22439007:22439015:1 gene:ENSG00000237235.2 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRDD2 description:T cell receptor delta diversity 2 [Source:HGNC Symbol;Acc:HGNC:12255]
+CCTTCCTAC
+>ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1 gene:ENSG00000282431.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRBD1 description:T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]
+GGGACAGGGGGC
+```
 
 2) Transcript mapping file
 
@@ -290,9 +313,9 @@ It is important to make sure the version number of your transcript file and the 
 
 If you have problems, this mapping file is also provided in the google drive as `tx2gene.txt`.
 
-3) Annotation file (optional)
+3) Annotation file 
 
-The Ensembl gene IDs are not particularly memorable, so it would be highly beneficial to have other annotations at hand to help us interpret the data downstream. We can use the biomart website again to produce a table to downstream intrepretation. 
+The Ensembl gene IDs are not particularly memorable, so it would be highly beneficial to have other annotations at hand to help us interpret the data downstream. We can use the biomart website again to produce a table to aid downstream intrepretation. 
 
 This time, select only the *Gene Stable ID* tickbox in the GENE box. Expand the EXTERNAL panel by clicking the "+" next to EXTERNAL, and select *HGNC symbol* and *NCBI gene (formerly Entrezgene) ID*
 
@@ -306,7 +329,7 @@ This time, select only the *Gene Stable ID* tickbox in the GENE box. Expand the 
 
 - Select the *Homo_sapiens_GRCh38.cdna.all.fa.gz* file as the Transcripts fasta file
 - Select all your uploaded fastq files as your Data Input FASTQ/FASTA file
-- Scroll down to *File containing a mapping of transcripts to genes* and select the `tx2gene.txt` file
+- Scroll down to *File containing a mapping of transcripts to genes* and select the `tx2gene.txt` file from your history
 
 Two jobs will now be queued for each sample fastq file. The Quantification output will contain transcript-level data, and the Gene Quantification output will be at the *gene-level*. We should expect the number of lines in the Gene Quantification file to be substantially less. If not, you will need to check that your transcript mapping file was correct.
 
@@ -322,28 +345,39 @@ Note that we are using a downsampled dataset, so the majority of NumReads will b
 
 ### Create a count matrix
 
-Methods for detecting differential expression are likely to want data in the form of a table; where every row is a different gene and each column is a unique biological sample. Before we can proceed we will therefore need to *merge* our salmon results into a single output. This can be down using the *Salmon quantmerge* tool
+Methods for detecting differential expression are likely to want data in the form of a table; where every row is a different gene and each column is a unique biological sample. Before we can proceed we will therefore need to *merge* our salmon results into a single output. ~~This can be down using the *Salmon quantmerge* tool~~
 
 <div class="information">
 **RNA Analysis** -> **Salmon quantmerge**
 </div>
 
-Use the +Insert Quant file and names button repeatedly to select each of your **Gene Quantification** outputs. The One-word sample names text box can be used to create a shorter column name for each output.
+~~Use the +Insert Quant file and names button repeatedly to select each of your **Gene Quantification** outputs. The One-word sample names text box can be used to create a shorter column name for each output.~~
 
-Once all the Gene Quantification files have been selected the drop-down menu under **Columns** should be changed from Length to **NumReads**.
+~~Once all the Gene Quantification files have been selected the drop-down menu under **Columns** should be changed from Length to **NumReads**.~~
 
-After the tool has finished you should have a table with 
-
-### Adding extra annotation to results
+The first step in merging our salmon output is to produce a table for each sample that contains just the gene name and the number of reads for that gene. This can be done with the advanced cut tool
 
 <div class="information">
-**Text Manipulation** -> **Join two files**
+**Text Manipulation** -> **Advanced Cut** columns from a table
 </div>
 
-- 1st file: *Column Join on data....*
-- Column to use from 1st file: Column 1
-- 2nd file: result from *annotateMyIDs on data...*
-- Column to use from 2nd file: Column 1
+- In **File to cut**, select all the salmon **Gene Quantification** outputs
+- In the **List of Fields** box under **Cut by**, select Column: 1 and Column: 5.
+
+These outputs can be merged using the Column join tool
+
+<div class="information">
+**Collection Operations** -> **Column join** on multiple datasets
+</div>
+
+- Select the **Advanced Cut** outputs and keep the **Identifier column** as 1. This will "join" the files together based on the gene names; which hopefully should be the same for each sample.
+
+After the tool has finished you should have an output table with one row for each gene and a column containing the counts for that gene.
+
+<div class="exercise">
+**Exercise**: Upload the annotation file from biomart containing Ensembl Gene ID, hgnc and Entrez. Use the column join tool to create a table that allows you to identify the counts for given genes more easily.
+
+</exercise>
 
 ## **(Optional)** Alternative workflow involving genome alignment
 
@@ -381,13 +415,7 @@ built-in genome
 
 ### Quantification (Counting reads in features)
 
-In order to test for differential expression, we need to count up how many times each "feature" is observed in each sample. The goal of such operations is to produce a *count table* such as that shown below. We can then apply statistical tests to these data
-
-![](media/counts.png)
-
-HTSeq-count creates a count matrix using the number of the reads from each bam
-file that map to the genomic features. For each feature (a
-gene for example) a count matrix shows how many reads were mapped to this
+`HTSeq-count` creates a count matrix using the number of the reads from each bam file that map to the genomic features. For each feature (a gene for example) a count matrix shows how many reads were mapped to this
 feature.
 
 Various rules can be used to assign counts to features
@@ -398,7 +426,28 @@ To obtain the coordinates of each gene, we can use the UCSC genome browser which
 
 ### Obtaining gene coordinates
 
-[Ensembl](http://m.ensembl.org/info/data/ftp/index.html) 
+<div class="information">
+
+**Get Data** -> **UCSC Main** table browser
+
+</div>
+
+
+![](media/ucsc_browser.png)
+
+Selecting the **UCSC Main** tool from Galaxy will take you to the UCSC table browser. From here we can extract gene coordinates for our genome of interest (`hg38`) in `gtf` format for processing with galaxy.
+
+- Set *clade* to **Mammal**
+- Set *genome* to **Human**
+- *assembly* **Dec.2013 (GRCm38/hg38)**
+- *group* **Genes and Gene Prediction**
+- *track* **NCBI RefSeq**
+- *table* **UCSC RefSeq (refGene)**
+- *region* **genome**
+- *output format* **GTF - gene transfer format (limited)** and *send output to* **Galaxy**
+
+Click *get output* and *send query to Galaxy* to be returned to Galaxy. A new job will be submitted to retrieve the coordinates from UCSC
+
 
 ### Counting reads in genes
 
@@ -410,12 +459,27 @@ To obtain the coordinates of each gene, we can use the UCSC genome browser which
     In the left tool panel menu, under NGS Analysis, select
     **NGS Analysis > htseq-count** and set the parameters as follows:  
     - **Aligned SAM/BAM file**  
-      (Select one of four bam files, or all four using the multiple datasets option)
-    - **GFF file** UCSC Main on Mouse:ncbiRefSeq (genome)
+      (Select all four bam files using the multiple datasets option)
+    - **GFF file** UCSC Main on Human:refGene (genome)
     - Use defaults for the other fields
     - Execute
 2.  Repeat for the remaining bam files if running on each bam separately.
 3.  To make things easier to track, rename the ht-seq output for each sample to contain the corresponding sample name (e.g. SRR1552444.htseq). **Do not rename the outputs that have "(no feature)" in their name**
+
+<div class="warning">
+
+When you are returned to Galaxy from UCSC it might look like you have lost all th files in your analysis and are no longer logged in. 
+
+To solve this, log back in and choose the **View all histories** option under the History panel.
+
+![](media/galaxy_history.PNG)
+
+There should be two "histories"; one containing all the outputs you generated before accessing UCSC, and one containing the UCSC output. All this point you can switch back to your previous history, and drag the box containing the UCSC ouput to this history
+
+![](media/switch_histories.PNG)
+
+</div>
+
 
 ### Create a count matrix
 
@@ -433,7 +497,9 @@ The htseq tool is designed to produce a separate table of counts for each sample
 
 # Differential Expression using Degust
 
-Differential expression is possible using Galaxy using the DESeq2 tool (for example). However, our particular recommendation is to use Degust for a more interactive experience. For this section, we will be using counts generated on the *full dataset*, rather than the *downsampled* data analysed in the previous section. These counts are available in the file `GSE114013_salmon_counts.csv`.
+Differential expression is possible using Galaxy using the DESeq2 tool (for example). However, our particular recommendation is to use Degust for a more interactive experience. For this section, we will be using counts generated on the *full dataset*, rather than the *downsampled* data analysed in the previous section. These counts are available in the file `GSE114013_salmon_counts.csv` from the google drive, or can be downloaded using the link below
+
+- [GSE114013_salmon_counts.csv](GSE114013_salmon_counts.csv)
 
 
 ## Differential expression
@@ -452,16 +518,14 @@ Such methods were developed on the premise that microarray expression values are
 
 `Degust` is a web tool that can analyse the counts files produced in the step above, to test for differential gene expression. It offers and interactive view of the differential expression results
 
-The input file is a count matrix where each row is a measured gene, and each column is a different biological sample. Within the tool we can configure which samples belong to the different biological groups of interest.
+The input file is a count matrix where each row is a measured gene, and each column is a different biological sample. Within the tool we can configure which samples belong to the different biological groups of interest. **It is important that no normalisation has been applied to the counts that are submitted to DEGUST**.
 
-Read counts have to be normalised first prior to differential expression testing. There are two main biases that need to be accounted for:-
+Read counts have to be normalised first prior to differential expression testing. This page from Harvard Bioinformatics summarises the main biases in "raw" RNA-seq counts; Sequencing depth, Gene length and RNA composition
 
-- size of gene
-    + *longer* genes will have more reads assigned to them
-- library size
-    + a sample that is sequenced to a higher depth will receive more reads
-  
-However, R-based methods such as `edgeR` (implemented in Degust) and `DESeq2` have their own method of normalising counts. You will probably encounter other methods of normalising RNA-seq reads such as *RPKM*, *CPM*, *TPM* etc. [This blog](https://www.rna-seqblog.com/rpkm-fpkm-and-tpm-clearly-explained/) provides a nice explanation of the current thinking. As part of the `Degust` output, you have the option of downloading normalised counts in various formats. Some other online visualisation tools require normalised counts as input, so it is good to have these to-hand.
+- [https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html](https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html)
+
+
+Methods such as `edgeR` (implemented in Degust) and `DESeq2` have their own method of normalising counts. You will probably encounter other methods of normalising RNA-seq reads such as *RPKM*, *CPM*, *TPM* etc. [This blog](https://www.rna-seqblog.com/rpkm-fpkm-and-tpm-clearly-explained/) provides a nice explanation of the current thinking. As part of the `Degust` output, you have the option of downloading normalised counts in various formats. Some other online visualisation tools require normalised counts as input, so it is good to have these to-hand.
 
 
 ### Uploading the count matrix to Degust
@@ -506,12 +570,12 @@ SRR7108403	| SW948_ITRA_4 | SW948	| ITRACONAZOLE
 ### Overview of Degust sections
 
 - Top black panel with Configure settings at right.
-- Left: Conditions: DMSO and ITRACONAZOLE.
-- Top centre: Plots, with options at right.
-- When either of the expression plots are selected, a heatmap appears below.
-- A table of genes (or features); expression in treatment relative to control (Treatment column); and significance (FDR column).
+- Left: Control over which conditions are compared and the cut-offs for deciding DE genes.
+- Top centre: Interactive plots (see below)
+- When either of the expression plots are selected, a heatmap appears below. If no FDR or logFC filtering is applied this plot will take a long time to be generated.
+- A table of genes (or features); expression in "treatment" relative to "control"; and significance (FDR column).
 
-(**Not that the screenshots are for illustration purposes and taken from a different dataset to that being analysed in the tutorial**)
+(**Not that the screenshots are for illustration purposes and taken from a different dataset to that being analysed in the tutorial.**)
 
 ![](http://sepsis-omics.github.io/tutorials/modules/dge/images/image12.png)
 
@@ -529,33 +593,29 @@ Each dot shows the change in expression in one gene.
     + If expression is significantly different between batch and chem, the dots are red. If not, they are blue. (In Degust, significant means FDR <0.05).
     + At low levels of gene expression (low values of the x axis), fold changes are less likely to be significant.
 
-Click on the dot to see the gene name.
+Click on the dot to see the gene name. The panel on the right of the MA-plot will also update to show the expression of this gene in each sample in the form of a dot plot.
 
-### Parallel coordinates and heatmap
 
-![](media/degust_parallel_heatmap.png)
+### MDS plot
 
-Each line shows the change in expression in one gene, between control and treatment.
+This is a multidimensional scaling plot which represents the variation between samples. It is a similar concept to a Principal Components Analysis (PCA) plot. The x-axis is the dimension with the highest magnitude. In a standard control/treatment setup, samples should be split along this axis. A desirable plot is shown below:-
 
-- Go to Options at the right.
-    + For FDR cut-off set at 0.001.
-    + This is a significance level (an adjusted p value). We will set it quite low in this example, to ensure we only examine key differences.
-- Look at the Parallel Coordinates plot. There are two axes:
-    + Left: Control: Gene expression in the control samples. All values are set at zero.
-    + Right: Treatment Gene expression in the treatment samples, relative to expression in the control.
-- The blocks of blue and red underneath the plot are called a heatmap.
-    + Each block is a gene. Click on a block to see its line in the plot above.
-    + Look at the row for the chem. Relative to batch, genes expressed more are red; genes expressed less are blue.
+![](media/degust_mds.png)
+
+### Volcano plot
+
+Similar to the MA-plot, this shows the significance of each gene (y-axis) and magnitude of change (x-axis). 
 
 ### Table of genes
 
+Intially this will contain the details of all genes present in the dataset. Once the FDR and logFC cut-offs are altered, any genes that do not meet the cut-offs will be removed.
+
 ![](media/degust_gene_table.png)
 
-Table of genes
 
-- gene_id: names of genes. Note that gene names are sometimes specific to a species, or they may be only named as a locus ID (a chromosomal location specified in the genome annotation).
+- INFO; The columns that you selected in the configuration to contain gene information (e.g. gene name, gene symbol, Entrez ID)
 - FDR: False Discovery Rate. This is an adjusted p value to show the significance of the difference in gene expression between two conditions. Click on column headings to sort. By default, this table is sorted by FDR.
-- basal and luminal: log2(Fold Change) of gene expression. The default display is of fold change in the treatment relative to the control. Therefore, values in the batch column are zero. This can be changed in the Options panel at the top right.
+- Treatment and Control: log2(Fold Change) of gene expression. The default display is of fold change in the treatment relative to the control. Therefore, values in the batch column are zero. This can be changed in the Options panel at the top right.
     + In some cases, a large fold change will be meaningful but in others, even a small fold change can be important biologically.
 
 The table can be sorted according to any of the columns (e.g. fold-change or p-value)
@@ -565,19 +625,10 @@ The table can be sorted according to any of the columns (e.g. fold-change or p-v
 
 Above the genes table is the option to download the results of the current analysis to a csv file. You can also download the *R* code required to reproduce the analysis by clicking the *Show R code* box underneath the Options box.
 
-Plots such as the MDS, MA and heatmap can also be exported by right-clicking on the plot.
-
-
-### MDS plot
-
-This is a multidimensional scaling plot which represents the variation between samples. It is a similar concept to a Principal Components Analysis (PCA) plot. The x-axis is the dimension with the highest magnitude. In a standard control/treatment setup, samples should be split along this axis. A desirable plot is shown below:-
-
-![](media/degust_mds.png)
-
 ### Exercise
 
 <div class="exercise">
-**Question:** It seems that the differential expression analysis is detecting lots of genes. However, does this tell the whole story about the dataset? What do you think is the main factor separating samples on the x-axis, and thus explaining the most variation in the data?
+**Question:** Make a note of how many genes are detected with a **FDR** < 0.05 and **abs logFC** > 1 It seems that the differential expression analysis is detecting lots of genes. However, does this tell the whole story about the dataset? What do you think is the main factor separating samples on the x-axis, and thus explaining the most variation in the data?
 
 </div>
 
@@ -594,7 +645,7 @@ We will now repeat the analysis, but only for samples from the *HT55* cell-line.
 </div>
 
 <div class="exercise">
-**Exercise:** Rest the FDR cut-off and abs LogFC cutoffs back to default and *download* the file and rename to `background.csv`. We will use this later.
+**Exercise:** Rest the FDR cut-off and abs LogFC cutoffs back to default (1 and 0 respectively) and *download* the file. Rename the file to `background.csv`. We will use this later.
 </div>
 
 <div class="exercise">
@@ -625,14 +676,14 @@ The website *venny* provides a really nice interface for doing this.
 - Open both your *HT55: ITRACONAZOLE vs DMSO* and *SW948: ITRACONAZOLE vs DMSO* results files in Excel
 - Go to the venny website
     + http://bioinfogp.cnb.csic.es/tools/venny/
-- Copy the names of genes with adjusted p-value less than 0.05 in the HT55 analysis into the **List 1** box on the venny website. **List 1** can be renamed to *HT55*
+- Copy the names of genes in the HT55 file into the **List 1** box on the venny website. **List 1** can be renamed to *HT55*
     + *You can select all entries in a column with the shortcut CTRL + SPACE*
-- Copy the names of genes with adjusted p-value less than 0.05 in the SW948 analysis into the **List 2** box on the venny website. **List 2** can be renamed to **SW948**
+- Copy the names of genes in the SW948 analysis into the **List 2** box on the venny website. **List 2** can be renamed to **SW948**
 - venny should now report the number of genes found in each list, the size of the intersection, and genes unique to each method
 
 ### Refined analysis
 
-The final analysis we will perform is to include all the samples, but correct for the differences in cell-line. This is achieved by telling Degust about the *hidden factors* in our dataset. The hidden factor in this dataset is whether the sample is from the **HT55** or **SW948** samples. However, we only need to specify which samples are from HT55. Other hidden factors you might need to include could be (depending on the MDS plot) :-
+The final analysis we will perform is to include all the samples, but correct for the differences in cell-line. This is achieved by telling Degust about the *hidden factors* in our dataset. The hidden factor in this dataset is whether the sample is from the **HT55** or **SW948** samples. In other words, this is a technical factor that influences our results but not a factor that we wish to compare. We only need to specify which samples are from HT55 and DEGUST will infer that the other samples belong to a different cell line. Other hidden factors you might need to include could be (depending on the MDS plot) :-
 
 - sample batch
 - gender
@@ -641,9 +692,11 @@ See below for the correct configuration to include the hidden factors.
 
 <img src="media/hidden_factor.png"/>
 
-# Enrichment and pathways analysis
+<div class="exercise">
+**Exercise**: How many genes are identified with an FDR < 0.05 and abs logFC > 1 for this "hidden factor" analysis. How does it compare to the initial comparison of DMSO vs ITRA using all samples?
+</div>
 
-In the early days of microarray analysis, people were happy if they got a handful of differentially-expressed genes that they could validate or follow-up. However, with later technologies (and depending on the experimental setup) we might have thousands of statistically-significant results, which no-one has the time to follow-up. Also, we might be interested in pathways / mechanisms that are altered and not just individual genes.
+# Enrichment and pathways analysis
 
 In this section we move towards discovering if our results are ***biologically significant***. Are the genes that we have picked statistical flukes, or are there some commonalities. 
 
@@ -652,11 +705,15 @@ There are two different approaches one might use, and we will cover the theory b
 
 ## Over-representation analysis
 
-"Threshold-based" methods require defintion of a statistical threshold to define list of genes to test (e.g. FDR < 0.01). Then a *hypergeometric* test or *Fisher's Exact* test generally used. They are typically used in situations where plenty of DE genes have been identified, and people often use quite relaxed criteria for identifying DE genes (e.g. raw rather than adjusted p-values or FDR value)
+"Threshold-based" methods require the application of a statistical threshold to define list of genes to test (e.g. FDR < 0.01). Then a *hypergeometric* test or *Fisher's Exact* test generally used. These are typically used in situations where plenty of DE genes have been identified, and people often use quite relaxed criteria for identifying DE genes (e.g. raw rather than adjusted p-values or FDR value)
 
 The question we are asking here is;
 
-> ***"Are the number of DE genes associated with Theme X significantly greater than what we might expect by chance alone?"***
+> "Are the number of DE genes associated with Theme X significantly greater than what we might expect by chance alone?"
+
+or
+
+> "If I picked a set of genes *at random* that is the same as the number of DE genes, how many genes from Theme X would I expect to find"?
 
 We can answer this question by knowing
 
@@ -677,15 +734,16 @@ with:-
 | Not in Gene Set  | c     | d      | c + d     |
 | Column Total    |  a + c | b + d  | a + b + c + d = n |
 
+<div class="information">
+This formula is printed here for your information. The software we use will perform all the calculations for us.
+</div>
 
 In this first test, our genes will be grouped together according to their Gene Ontology (GO) terms:- http://www.geneontology.org/
 
 
 ## Using GOrilla
 
-There are several popular online tools for performing enrichment analysis
-
-We will be using the online tool [GOrilla](http://cbl-gorilla.cs.technion.ac.il/) to perform the pathways analysis as it is particularly straightforward. It has two modes; the first of which accepts a list of *background* and *target* genes. 
+There are several popular online tools for performing enrichment analysis. We will be using the online tool [GOrilla](http://cbl-gorilla.cs.technion.ac.il/) to perform the pathways analysis as it is particularly straightforward. It has two modes; the first of which accepts a list of *background* and *target* genes. 
 
 1. Go to http://cbl-gorilla.cs.technion.ac.il/
 2. Choose Organism: `Homo Sapiens`
@@ -716,6 +774,8 @@ Below the figure is the results table. This links to more information about each
 This type of analysis is popular for datasets where differential expression analysis does not reveal many genes that are differentially-expressed on their own. Instead, it seeks to identify genes that as a group have a tendancy to be near the extremes of the log-fold changes. The results are typically presented in the following way.
 
 ![](media/overexpressed-gsea.png)
+
+The "barcode"-like panel represents where genes from a particular pathway (**HALLMARK_E2F_TARGETS** in this case) are located in a gene list *ranked* from most up-regulated to most down-regulated. The peak in the green curve is used to indicate where the majority of genes are located. If this is shifted to the left or the right it indicates that genes belonging to this gene set have a tendancy to be up- or down-regulated.
 
 As such, it does not rely on having to impose arbitrary cut-offs on the data. Instead, we need to provide a measure of the importance of each gene such as it's fold-change. These are then used the rank the genes.
 
