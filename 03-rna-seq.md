@@ -86,7 +86,7 @@ The data for this tutorial comes from a Journal of Experimental Medicine paper [
 
 
 
-For this tutorial, we will assume that the *wet-lab* stages of the experiment have been performed and we are now in the right-hand branch of the workflow. In this tutorial we will demonstrate the steps of **Quality assessment**, **alignment**, **quantification** and **differential expression testing**.
+For this tutorial, we will assume that the *wet-lab* stages of the experiment have been performed and in this tutorial we will demonstrate the steps of **Quality assessment**, **alignment**, **quantification** and **differential expression testing**.
 
 The fastq data for this experiment were made available on the Sequencing Read Archive (SRA) with accession SRP144496. **For the purposes of this workshop we have created a downsampled dataset**
 
@@ -272,7 +272,7 @@ On the next screen,  Right-click to save the `.cdna.all.fa.gz` to your computer
 
 The FASTA file is a large text file that lists all the transcripts for the given organism and their genomic sequence. You *could* open this in a standard text editor if you wished to see the contents. The contents are similar to that of a FASTQ file. In fact, the FASTQ file is a FASTA file with extra quality scores added.
 
-The identifier line for each sequence (starting with `>`) names the transcript and the gene it is associated with. Since we obtained the file from Ensembl, the Transcripts and Genes begin with the `ENST` and `ENSG` respectively.
+The identifier line for each sequence (starting with `>`) names the transcript and the gene it is associated with. Since we obtained the file from Ensembl, the Transcripts and Genes begin with the `ENST` and `ENSG` respectively. The numbers after each transcript or gene are the *version numbers*; the sequence and defintion of each transcript / gene can evolve over time.
 
 ```
 >ENST00000631435.1 cdna chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142847306:142847317:1 gene:ENSG00000282253.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRBD1 description:T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]
@@ -311,7 +311,7 @@ By default, salmon will produce counts for each *transcript*. This might be what
 It is important to make sure the version number of your transcript file and the biomaRt dataset are **the same**, otherwise some of the steps downstream might not work as expected.
 </div>
 
-If you have problems, this mapping file is also provided in the google drive as `tx2gene.txt`.
+If you have problems, this mapping file is also provided in the google drive as `tx2gene.txt`. The contents of the first column have to be in the same format as the transcript names in the fasta file. i.e. in this case the version number must be present. 
 
 3) Annotation file 
 
@@ -319,6 +319,7 @@ The Ensembl gene IDs are not particularly memorable, so it would be highly benef
 
 This time, select only the *Gene Stable ID* tickbox in the GENE box. Expand the EXTERNAL panel by clicking the "+" next to EXTERNAL, and select *HGNC symbol* and *NCBI gene (formerly Entrezgene) ID*
 
+<img src="media/biomart_annotation.PNG"/>
 
 ### salmon configuration and running
 
@@ -348,7 +349,7 @@ Note that we are using a downsampled dataset, so the majority of NumReads will b
 Methods for detecting differential expression are likely to want data in the form of a table; where every row is a different gene and each column is a unique biological sample. Before we can proceed we will therefore need to *merge* our salmon results into a single output. ~~This can be down using the *Salmon quantmerge* tool~~
 
 <div class="information">
-**RNA Analysis** -> **Salmon quantmerge**
+~~**RNA Analysis** -> **Salmon quantmerge**~~
 </div>
 
 ~~Use the +Insert Quant file and names button repeatedly to select each of your **Gene Quantification** outputs. The One-word sample names text box can be used to create a shorter column name for each output.~~
@@ -422,7 +423,8 @@ Various rules can be used to assign counts to features
 
 ![](media/htseq.png)
 
-To obtain the coordinates of each gene, we can use the UCSC genome browser which is integrated into Galaxy.
+To obtain the coordinates of each gene, we can use the UCSC genome browser which is integrated into Galaxy. Unfortunately, the Ensembl FTP site **cannot** be used as the chromosome naming conventions used in Ensembl are different to the chromosome naming scheme used in the reference genomes supplied by Galaxy (1,2,.. vs chr1, chr2). 
+The alternative would be to download a matching gtf and genome reference sequence from Ensembl and upload both to Galaxy. This would take more time and space on the Galaxy server.
 
 ### Obtaining gene coordinates
 
@@ -448,6 +450,20 @@ Selecting the **UCSC Main** tool from Galaxy will take you to the UCSC table bro
 
 Click *get output* and *send query to Galaxy* to be returned to Galaxy. A new job will be submitted to retrieve the coordinates from UCSC
 
+<div class="warning">
+
+When you are returned to Galaxy from UCSC it might look like you have lost all th files in your analysis and are no longer logged in. 
+
+To solve this, log back in and choose the **View all histories** option under the History panel.
+
+![](media/galaxy_history.PNG)
+
+There should be two "histories"; one containing all the outputs you generated before accessing UCSC, and one containing the UCSC output. All this point you can switch back to your previous history, and drag the box containing the UCSC ouput to this history
+
+![](media/switch_histories.PNG)
+
+</div>
+
 
 ### Counting reads in genes
 
@@ -466,19 +482,6 @@ Click *get output* and *send query to Galaxy* to be returned to Galaxy. A new jo
 2.  Repeat for the remaining bam files if running on each bam separately.
 3.  To make things easier to track, rename the ht-seq output for each sample to contain the corresponding sample name (e.g. SRR1552444.htseq). **Do not rename the outputs that have "(no feature)" in their name**
 
-<div class="warning">
-
-When you are returned to Galaxy from UCSC it might look like you have lost all th files in your analysis and are no longer logged in. 
-
-To solve this, log back in and choose the **View all histories** option under the History panel.
-
-![](media/galaxy_history.PNG)
-
-There should be two "histories"; one containing all the outputs you generated before accessing UCSC, and one containing the UCSC output. All this point you can switch back to your previous history, and drag the box containing the UCSC ouput to this history
-
-![](media/switch_histories.PNG)
-
-</div>
 
 
 ### Create a count matrix
@@ -543,7 +546,7 @@ Methods such as `edgeR` (implemented in Degust) and `DESeq2` have their own meth
 - For Info columns select *SYMBOL*
 - Click Add condition
     + Referring to the experiment design (below), select the DMSO samples and call the condition DMSO
-    + Repeat for the ITRACONAZOLE samples
+    + Repeat for the ITRACONAZOLE samples. We will refer to this as **ITRA** for short.
 - Save the settings and then View the results
 
 run	| name	| cell_line	| condition
@@ -569,10 +572,9 @@ SRR7108403	| SW948_ITRA_4 | SW948	| ITRACONAZOLE
 
 ### Overview of Degust sections
 
-- Top black panel with Configure settings at right.
+- Top black panel with Configure settings at right. Used to change the experimental conditions
 - Left: Control over which conditions are compared and the cut-offs for deciding DE genes.
 - Top centre: Interactive plots (see below)
-- When either of the expression plots are selected, a heatmap appears below. If no FDR or logFC filtering is applied this plot will take a long time to be generated.
 - A table of genes (or features); expression in "treatment" relative to "control"; and significance (FDR column).
 
 (**Not that the screenshots are for illustration purposes and taken from a different dataset to that being analysed in the tutorial.**)
@@ -793,5 +795,16 @@ Hopefully it should recognise your input without any errors, and on the next scr
 If your data does not get uploaded, double-check that the column heading **ITRA** has not been pasted into the text box
 </div>
 
-To make the analysis run fast, you can de-select the GO pathways (biological processes, molecular function and cellular compartment)
+To make the analysis run faster, you can de-select the GO pathways (biological processes, molecular function and cellular compartment)
 
+<img src="media/genetrail_setup.PNG"/>
+
+After a short wait, you will be able to view and download the results. The tested pathways are grouped into different sources (Kegg, Reactome or Wikipathways) 
+
+<img src="media/genetrail_KEGG.PNG"/>
+
+Each of the significant pathways can be explored in detail; such as showing which genes in that pathways are up- or downregulated.
+
+<img src="media/genetrail_KEGG_result.PNG"/>
+
+The Rank of the gene shown is the position of the gene in the ranked list; with 1 being most up-regulated gene. The score is the score used to rank the genes (fold-change in our example).
