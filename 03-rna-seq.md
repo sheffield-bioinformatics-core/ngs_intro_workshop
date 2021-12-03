@@ -808,3 +808,10 @@ Each of the significant pathways can be explored in detail; such as showing whic
 <img src="media/genetrail_KEGG_result.PNG"/>
 
 The Rank of the gene shown is the position of the gene in the ranked list; with 1 being most up-regulated gene. The score is the score used to rank the genes (fold-change in our example).
+
+<div class="exercise">
+**Exercise**: Explore the GeneTrail results. Does the method identify significant pathways for the HT55: ITRACONAZOLE vs DMSO analysis?
+</div>
+
+# Recap
+
