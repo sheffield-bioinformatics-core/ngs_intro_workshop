@@ -380,7 +380,7 @@ After the tool has finished you should have an output table with one row for eac
 
 </exercise>
 
-## **(Optional)** Alternative workflow involving genome alignment
+# **(Optional)** Alternative workflow involving genome alignment
 
 If time allows, we will also follow this section
 
