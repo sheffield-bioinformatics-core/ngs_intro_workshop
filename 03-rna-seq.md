@@ -134,9 +134,7 @@ The SRA accession (usually found in a paper describing the dataset) can be enter
 
 **Make sure you check your email to activate your account**
 
-Now, use this link to access a special queue. This link will only be active on **December 6th**.
 
-- [https://usegalaxy.eu/join-training/sbcgalaxy-2021-12-01](https://usegalaxy.eu/join-training/sbcgalaxy-2021-12-01)
 
 #### 2. Download the course data
 
@@ -193,6 +191,14 @@ The `.gz` at the end of each file name means that it is *compressed* (like a zip
 <div class="information">
 You can upload the other files for extra practice if you wish
 </div>
+
+## Alternative upload
+
+To save time, the raw data for this dataset have been uploaded to Galaxy. To access the history, use the link below
+
+- [https://usegalaxy.eu/u/markdunning/h/beginners-rna-seq—salmon](https://usegalaxy.eu/u/markdunning/h/beginners-rna-seq—salmon)
+
+There should be a button to import the history in the top-right corner. The raw data for the practical should now be available to you.
 
 ### Quality assessment with FastQC (Optional)
 

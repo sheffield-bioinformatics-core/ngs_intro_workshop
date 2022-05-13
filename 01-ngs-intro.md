@@ -117,9 +117,9 @@ It is worth bearing the following in-mind before planning to do your own Bioinfo
 
 **Make sure you check your email to activate your account**
 
-#### 2. Use this link on November 29th to access a reserved queue
+#### 2. Download the example data
 
-- [https://usegalaxy.eu/join-training/sbcgalaxy-2021-11-29](https://usegalaxy.eu/join-training/sbcgalaxy-2021-11-29)
+- [https://drive.google.com/drive/folders/1M4d6jt8CkmCfLXemASewLf-40A9esSXy?usp=sharing](https://drive.google.com/drive/folders/1M4d6jt8CkmCfLXemASewLf-40A9esSXy?usp=sharing)
 
 #### 3.  Import the data for the workshop.
 
@@ -127,8 +127,7 @@ We can going to import the [*fastq* files](https://en.wikipedia.org/wiki/FASTQ_f
 
 You can import the data by:
 
-1.  In the tool panel located on the left, under Basic Tools select **Get
-    Data > Upload File**. Click on the **Paste/Fetch data** button on the
+1.  In the tool panel located on the left, under Basic Tools select **Get Data > Upload File**. Click on the *Choose Local Files* button on the
     bottom section of the pop-up window.
 2.  Upload the example data for this workshop by selecting the files `example1_R1.fastq` `example1_R2.fastq`,`example2_R1.fastq` and `example2_R2.fastq`. You don't need to specify the file type or genome build. Galaxy should be able to make a reasonable guess.
 
@@ -220,19 +219,20 @@ You can view the files you just uploaded by clicking the **eye icon** the histor
 **example1_R1.fastq**
 
 ```
-@D0ENMACXX111207:1:1201:3771:127083
-AGACAAAATTGTCTGCTGTTCTAGTCAACAGTGTCCTGGAGGTTTCAACCAGTGCAATTGGCAAACAAACAAACAAACAAACTAGCTAGAAAAGTACCTGG
+@D0UW5ACXX120511:8:1204:6261:40047/1
+AATGTTTATGTTCTTAAATTTTAGTTGTATATGTGAATCTTTGTAGTTTTTGCTAAAATACTAAGTAATTTATATAAAAGTGAGTTAAGAGATTTTTCTGA
 +
-CCCFFFFFHHHHHJIJJJJIJJIJIJJEHIIHGIGHIJJIIJ?FHIIGJJIIIIIGGIJJJJJJJJIIIIJJFHHHBEEFFDEEDDCDDDDDDD@CDCCD<
+CCCFFFFFHHHHHJJJJJIJJJJJIJJHIIJIJIJJIJJJIJJHIIHIJJJJJJBEGIHIJICGIDICFGIJJJIIJJGJ>F>GAGCGEEHEHHEEFFFD>
 ```
 
 **example1_R2.fastq**
 
 ```
-@D0ENMACXX111207:1:1201:3771:127083
-AAAGACCTTGTCTCTAAAAAATAATAATAATAGTTAGGGATAATGCATTTAAATCTGTCTCACTGAAATAGTAAGAATGAAATCAAAGTGCTCAAGACAGC
+@D0UW5ACXX120511:8:1204:6261:40047/2
+GAGCTCAACTAAAAAAGAAGAGTCAGAAAAATCTCTTAACTCACTTTTATATAAATTACTTAGTATTTTAGCAAAAACTACAAAGATTCACATATACAACT
 +
-C@CFFFFFHHHHHJJJJJJJIIIIJJJJJJJJJJIIIJJJJJIJJJIIIJIJJJJIJIJJJJJIIGJJJIJFGGHIJJIFFHGGHFFFFFFEEDEEEDDDD
+C@CFFFFFHHHHHJJJJJJJIJHHHJJIJJIHEGJJJJGIIJGJIIIIJIGHJIGIJIJJJIJHHIJJJIIIJJDHEHFFFEFEECEEEDDDDDEDEEDDC
+
 ```
 
 
@@ -361,7 +361,7 @@ It has many trimming options, including a *sliding window* approach where the qu
 - Keep **Average quality required** as `20`
 - Click on **+ Insert Trimmomatic Operation**
 - Select `Drop reads below a specified length (MINLEN)` from **Select Trimmomatic operation to perform**
-- Keep the **Minimum length of reads to be kept as `20`
+- Keep the **Minimum length of reads to be kept** as `20`
 - Execute
 
 A total of 8 outputs are created and we are only interested in the outputs with *paired* in the name. The *unpaired* files contain reads that are discarded from the `R1` file but not `R2` (and vice-versa), so are not useful for downstead analysis where we assume we have sequenced in both directions.
@@ -555,7 +555,6 @@ e.g.
 
 <div class="information">
 *SAM/BAM:- > Samtools flagstat*
-*SAM/BAM -> Samtools idxstats*
 </div>
 
 We will now generate a few basic statistics about the alignment of our data; such as the total number of reads and how many were aligned. In the case of paired-end data, it will also tell you how many pairs were within the expected distance of each other and located on the same chromosome.
