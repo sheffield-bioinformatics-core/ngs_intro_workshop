@@ -70,13 +70,9 @@ The workflow is summarised below
 
 If attending this workshop in-person you should have access to a private queue on the usegalaxy.eu server that will allow your jobs to run quicker.
 
-Follow this link on December 1st to join the queue 
-
-https://usegalaxy.eu/join-training/sbcgalaxy-2021-12-01
-
 ## Import the *Germline* data for the workshop.
 
-We are using data from a *trio* of individuals that have been downsampled to be used in various Galaxy tutorials. These files can  be found in the shared google drive.
+We are using data from a *trio* of individuals that have been downsampled to be used in various Galaxy tutorials. These files can be found in the Session 2 folder of the shared google drive.
 
 - https://drive.google.com/drive/folders/1SqXZjkkR2JXXsKUPkdls0SoFTb6FVqTp?usp=sharing
 
@@ -99,6 +95,15 @@ You can import the data by:
 **Question**: What is the primary purpose of the `.bam` file? What Bioinformatics processes / tools have already been performed on the data?
 
 </div>
+
+## Alternative to uploading
+
+If the upload is taking too long, the files have been uploaded to Galaxy and shared. Click this link:-
+
+- [https://usegalaxy.eu/u/markdunning/h/beginnersvariantcalling](https://usegalaxy.eu/u/markdunning/h/beginnersvariantcalling)
+
+There should be a button to import the history in the top-right corner. The raw data for the practical should now be available to you.
+
 
 ## Set the genome build
 
@@ -363,7 +368,7 @@ We can also load extra *tracks* into the browser that can help us understand our
 
 <div class="exercise">
 
-**Exercise**: View the following positions in IGV:- What genotype is called in the patient (Het or Homozygous for the alternate allele). Does a variant seem likely here?
+**Exercise**: View the following positions in IGV:- What genotype is called in the patient (Het or Homozygous for the alternate allele). Does a variant seem likely here? **You can copy-and-paste these coordinates directly into IGV**
 
 - `chr22:17178684`
 - `chr22:25275498`
