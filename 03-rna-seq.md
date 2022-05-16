@@ -797,6 +797,8 @@ If your data does not get uploaded, double-check that the column heading **ITRA*
 
 To make the analysis run faster, you can de-select the GO pathways (biological processes, molecular function and cellular compartment)
 
+**For your own analyses, you should consider analysing these categories. We are only de-selecting them here to make things run quicker**
+
 <img src="media/genetrail_setup.PNG"/>
 
 After a short wait, you will be able to view and download the results. The tested pathways are grouped into different sources (Kegg, Reactome or Wikipathways) 
