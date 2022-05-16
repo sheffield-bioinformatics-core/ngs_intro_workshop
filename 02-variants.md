@@ -243,7 +243,7 @@ Variant Calling -> **FreeBayes** bayesian genetic variant detector
 </div>
 
 - **Choose the source for the reference genome** Locally cached
-- Select Merge output VCFs in **Run in batch mode**
+- Select Merge output VCFs in **Run individually**
 - Under **Bam dataset** select the patient bam file with **duplicates marked**
 - **Using reference genome** Human (Homo sapiens): hg19
 - **Limit variant calling to a set of regions?** Limit to region
@@ -331,7 +331,7 @@ etc...
 The meaning of each key can be discovered by looking at the header for the file. e.g. `##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">`. So this variant has a total of 3 bases covering it. **Don't worry if you don't understand all of the entries here**
 
 
-The column in the file describes the genotype calls for sample. In the sample column (`RS024V-FATHER`) for the first variant we see the entry
+The column in the file describes the genotype calls for sample. In the sample column (`RS024P-PATIENT`) for the first variant we see the entry
 
 ```
 1/1:3:0,3:0:0:3:107:-0.746352,-0.90309,0
@@ -499,10 +499,10 @@ Like the previous filtering tool, this requires us to write an expression to spe
 In particular, we can use functions `isRef()`, `isVariant()` to test if the calls for a particular sample match the reference or alternative. The expression `GEN[0]`, `GEN[1]` and `GEN[2]` are used to represent the genotypes for the 1st, 2nd and 3rd samples respectively. 
 
 - **Variant input file in VCF format** your filtered file from the previous step
-- **Filter criteria** `isRef(GEN[0]) & isVariant(GEN[1]) & isRef(GEN[2])`
+- **Filter criteria** `isRef(GEN[0]) & isRef(GEN[1]) & isVariant(GEN[2]) `
 
 <div class="warning">
-The filtering criteria given above assumes that genotypes appear in the order `Father`, `Patient`, `Mother` in the `vcf` file. If they do not appear in this order, you will need to change the criteria.
+The filtering criteria given above assumes that genotypes appear in the order `Father`, `Mother`, `Patient` in the `vcf` file. If they do not appear in this order, you will need to change the criteria.
 </div>
 
 <div class="warning">
