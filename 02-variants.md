@@ -100,7 +100,11 @@ You can import the data by:
 
 If the upload is taking too long, the files have been uploaded to Galaxy and shared. Click this link:-
 
-- [https://usegalaxy.eu/u/markdunning/h/beginnersvariantcalling](https://usegalaxy.eu/u/markdunning/h/beginnersvariantcalling)
+- [https://usegalaxy.eu/u/markdunning/h/beginnersvariantcalling](https://usegalaxy.eu/u/markdunning/h/beginnersvariantcalling) - **usegalaxy.eu**
+
+Or
+
+- [https://usegalaxy.org.au/u/markdunning/h/beginnersvariantcalling](https://usegalaxy.org.au/u/markdunning/h/beginnersvariantcalling) - **usegalaxy.org.au**
 
 There should be a button to import the history in the top-right corner. The raw data for the practical should now be available to you.
 
