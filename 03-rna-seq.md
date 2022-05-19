@@ -198,6 +198,8 @@ To save time, the raw data for this dataset have been uploaded to Galaxy. To acc
 
 - [https://usegalaxy.eu/u/markdunning/h/beginners-rna-seq—salmon](https://usegalaxy.eu/u/markdunning/h/beginners-rna-seq—salmon)
 
+- [https://usegalaxy.org.au/u/markdunning/h/beginnersrnaseqsalmon](https://usegalaxy.org.au/u/markdunning/h/beginnersrnaseqsalmon) - **galaxy.org.au**
+
 There should be a button to import the history in the top-right corner. The raw data for the practical should now be available to you.
 
 ### Quality assessment with FastQC (Optional)
