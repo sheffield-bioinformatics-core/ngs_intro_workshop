@@ -59,7 +59,7 @@ Those eventually wanted to perform their own RNA-seq analysis (for example in R)
 
 ### Techniques not covered in the workshop
 
-From our experience, the most common application of RNA-seq is still to perform a "differential expression" in order to identify genes, and eventually pathways, that are altered between a set of biological conditions. Therefore we will concentrate on this task in the workshop. We will also be considering *bulk* RNA-seq only. i.e. where our biological sample may be comprised of a pool of heterogeneous cells. Single-cell approaches are becoming more popular, and although there are some similiarities in how these data are processed, a different downstream analysis approach is required.
+From our experience, the most common application of RNA-seq is still to perform a "differential expression" in order to identify genes, and eventually pathways, that are altered between a set of biological conditions. Therefore we will concentrate on this task in the workshop. We will also be considering *bulk* RNA-seq only. i.e. where our biological sample may be comprised of a pool of heterogeneous cells. Single-cell approaches are becoming more popular, and although there are some similarities in how these data are processed, a different downstream analysis approach is required.
 
 The Galaxy Training Network provides materials on single-cell analysis, and other applications not covered in this workshop.
 
@@ -113,7 +113,7 @@ SRR7108403	| SW948_ITRA_4 | SW948	| ITRACONAZOLE
 
 #### Digression: How to download raw sequencing files
 
-The Sequencing Read Archive (SRA) is commonly-used to store the raw data from sequencing experiements and can be accessed through the NCBI website. However, the interface is not particularly friendly and the links to download data and not easy to obtain.
+The Sequencing Read Archive (SRA) is commonly-used to store the raw data from sequencing experiments and can be accessed through the NCBI website. However, the interface is not particularly friendly and the links to download data and not easy to obtain.
 
 An easier alternative exists in the form of SRA Explorer
 
@@ -260,7 +260,7 @@ Question: Repeat the FastQC analysis for the remaining fastq files and combine t
 
 ## Section 2: Quantification
 
-Traditiaonlly, workflows for RNA-seq would align reads to a reference *genome*, and then overlap with know gene coordinates. However, many now prefer to align directly to the *transcriptome* sequences using a method such as [`salmon`](https://salmon.readthedocs.io/en/latest/) or [`kallisto`](https://pachterlab.github.io/kallisto/about). We will demonstrate the salmon protocol.
+Traditionally, workflows for RNA-seq would align reads to a reference *genome*, and then overlap with know gene coordinates. However, many now prefer to align directly to the *transcriptome* sequences using a method such as [`salmon`](https://salmon.readthedocs.io/en/latest/) or [`kallisto`](https://pachterlab.github.io/kallisto/about). We will demonstrate the salmon protocol.
 
 ### Obtaining the files for salmon
 
@@ -280,7 +280,7 @@ On the next screen,  Right-click to save the `.cdna.all.fa.gz` to your computer
 
 The FASTA file is a large text file that lists all the transcripts for the given organism and their genomic sequence. You *could* open this in a standard text editor if you wished to see the contents. The contents are similar to that of a FASTQ file. In fact, the FASTQ file is a FASTA file with extra quality scores added.
 
-The identifier line for each sequence (starting with `>`) names the transcript and the gene it is associated with. Since we obtained the file from Ensembl, the Transcripts and Genes begin with the `ENST` and `ENSG` respectively. The numbers after each transcript or gene are the *version numbers*; the sequence and defintion of each transcript / gene can evolve over time.
+The identifier line for each sequence (starting with `>`) names the transcript and the gene it is associated with. Since we obtained the file from Ensembl, the Transcripts and Genes begin with the `ENST` and `ENSG` respectively. The numbers after each transcript or gene are the *version numbers*; the sequence and definition of each transcript / gene can evolve over time.
 
 ```
 >ENST00000631435.1 cdna chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142847306:142847317:1 gene:ENSG00000282253.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRBD1 description:T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]
@@ -323,7 +323,7 @@ If you have problems, this mapping file is also provided in the google drive as 
 
 3) Annotation file 
 
-The Ensembl gene IDs are not particularly memorable, so it would be highly beneficial to have other annotations at hand to help us interpret the data downstream. We can use the biomart website again to produce a table to aid downstream intrepretation. 
+The Ensembl gene IDs are not particularly memorable, so it would be highly beneficial to have other annotations at hand to help us interpret the data downstream. We can use the biomart website again to produce a table to aid downstream interpretation. 
 
 This time, select only the *Gene Stable ID* tickbox in the GENE box. Expand the EXTERNAL panel by clicking the "+" next to EXTERNAL, and select *HGNC symbol* and *NCBI gene (formerly Entrezgene) ID*
 
@@ -618,7 +618,7 @@ Similar to the MA-plot, this shows the significance of each gene (y-axis) and ma
 
 ### Table of genes
 
-Intially this will contain the details of all genes present in the dataset. Once the FDR and logFC cut-offs are altered, any genes that do not meet the cut-offs will be removed.
+Initially this will contain the details of all genes present in the dataset. Once the FDR and logFC cut-offs are altered, any genes that do not meet the cut-offs will be removed.
 
 ![](media/degust_gene_table.png)
 
@@ -781,11 +781,11 @@ Below the figure is the results table. This links to more information about each
 
 ## Threshold-free analysis
 
-This type of analysis is popular for datasets where differential expression analysis does not reveal many genes that are differentially-expressed on their own. Instead, it seeks to identify genes that as a group have a tendancy to be near the extremes of the log-fold changes. The results are typically presented in the following way.
+This type of analysis is popular for datasets where differential expression analysis does not reveal many genes that are differentially-expressed on their own. Instead, it seeks to identify genes that as a group have a tendency to be near the extremes of the log-fold changes. The results are typically presented in the following way.
 
 ![](media/overexpressed-gsea.png)
 
-The "barcode"-like panel represents where genes from a particular pathway (**HALLMARK_E2F_TARGETS** in this case) are located in a gene list *ranked* from most up-regulated to most down-regulated. The peak in the green curve is used to indicate where the majority of genes are located. If this is shifted to the left or the right it indicates that genes belonging to this gene set have a tendancy to be up- or down-regulated.
+The "barcode"-like panel represents where genes from a particular pathway (**HALLMARK_E2F_TARGETS** in this case) are located in a gene list *ranked* from most up-regulated to most down-regulated. The peak in the green curve is used to indicate where the majority of genes are located. If this is shifted to the left or the right it indicates that genes belonging to this gene set have a tendency to be up- or down-regulated.
 
 As such, it does not rely on having to impose arbitrary cut-offs on the data. Instead, we need to provide a measure of the importance of each gene such as it's fold-change. These are then used the rank the genes.
 
